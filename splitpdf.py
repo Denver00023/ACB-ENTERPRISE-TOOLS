@@ -1,4 +1,4 @@
-from turtle import pd
+import pandas as pd
 import streamlit as st
 import zipfile
 from io import BytesIO
