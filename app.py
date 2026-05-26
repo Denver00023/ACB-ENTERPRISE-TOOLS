@@ -4,6 +4,7 @@ import bankofcanada
 import candata
 import splitpdf
 import amazon_xml
+import apc_billing
 
 # --------PAGE CONFIG----------
 
@@ -121,6 +122,9 @@ if st.sidebar.button("📊 CANDATA UPLOAD FILE"):
 if st.sidebar.button("📊 AMAZON B2B XML TO CANDATA UPLOAD FILE"):
     st.session_state.module = "AMAZON_XML"
 
+if st.sidebar.button("📦 APC BILLING"):
+    st.session_state.module = "APC_BILLING"
+
 # -------ROUTING ENGINE--------
 if st.session_state.module == "HOME":
 
@@ -151,3 +155,6 @@ elif st.session_state.module == "CANDATA":
 
 elif st.session_state.module == "AMAZON_XML":
    amazon_xml.run()
+
+elif st.session_state.module == "APC_BILLING":
+    output = apc_billing.run()
