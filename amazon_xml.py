@@ -86,7 +86,7 @@ def build_row(header, item):
     return {
         # ---------------- HEADER INFO ----------------
         "Inco_term": header.get("incoterms", ""),
-        "Mode_of_transport": "",
+        "Mode_of_transport": "2",
 
         # ---------------- SELLER ----------------
         "Seller_code": "",
@@ -163,8 +163,8 @@ def build_row(header, item):
         "CBSA_Warehouse_Sub_Location_Code": "",
         "Port_of_Discharge": "",
         "Port_of_Discharge_Sublocation Code": "",
-        "IID_Y/N": "",
-        "PGA Flag": "",
+        "IID_Y/N": "Y",
+        "PGA Flag": "CFIA",
         "Category": "",
         "MAWB #": "",
         "Carrier code": header.get("carrierName", ""),
