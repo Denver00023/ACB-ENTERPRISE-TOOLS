@@ -3,6 +3,7 @@ import apc
 import bankofcanada
 import candata
 import splitpdf
+import amazon_xml
 
 # --------PAGE CONFIG----------
 
@@ -117,6 +118,8 @@ if st.sidebar.button("📄 SPLIT PDF BATCHER"):
 if st.sidebar.button("📊 CANDATA UPLOAD FILE"):
     st.session_state.module = "CANDATA"
 
+if st.sidebar.button("📊 AMAZON B2B XML TO CANDATA UPLOAD FILE"):
+    st.session_state.module = "AMAZON_XML"
 
 # -------ROUTING ENGINE--------
 if st.session_state.module == "HOME":
@@ -145,3 +148,6 @@ elif st.session_state.module == "SPLITPDF":
 
 elif st.session_state.module == "CANDATA":
     candata.run()
+
+elif st.session_state.module == "AMAZON_XML":
+   amazon_xml.run()
