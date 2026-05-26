@@ -53,7 +53,7 @@ def extract_items(root):
         items.append({
             "asin": item.findtext("asin", ""),
             "itemID": item.findtext("itemID", ""),
-            "hs_code": item.findtext("destinationHTSCode", ""),
+            "hs_code": item.findtext("destinationHTSCode", "").replace(".", ""),
             "description": item.findtext("harmonizedTariffDescription", ""),
             "country": item.findtext("countryOfOrigin", ""),
             "eccn": item.findtext("ECCN", ""),
