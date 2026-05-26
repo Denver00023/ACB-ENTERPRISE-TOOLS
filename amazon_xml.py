@@ -145,7 +145,7 @@ def build_row(header, item):
 
         "UNDG": "",
 
-        "Total_value_of_item": item.get("total_value", ""),
+        "Total_value_of_item": "",
         "Total_value_of_parcel": "",
 
         # ---------------- CUSTOMS ----------------
@@ -237,6 +237,22 @@ def run():
         return
 
     df = pd.DataFrame(all_rows)
+
+    # Ensure numeric conversion
+    df['Unit_price'] = pd.to_numeric(df['Unit_price'], errors='coerce').fillna(0)
+    df['Quantity'] = pd.to_numeric(df['Quantity'], errors='coerce').fillna(0)
+
+    # 1. COMPUTE ITEM TOTAL
+    df['Total_value_of_item'] = df['Unit_price'] * df['Quantity']
+
+    # 2. COMPUTE PARCEL TOTAL (GROUP BY RELIABLE_TRACKING)
+    df['Total_value_of_parcel'] = df.groupby(
+        'Reliable_tracking'
+    )['Total_value_of_item'].transform('sum')
+
+    # FORMAT TO 2 DECIMALS
+    df['Total_value_of_item'] = df['Total_value_of_item'].round(2)
+    df['Total_value_of_parcel'] = df['Total_value_of_parcel'].round(2)
 
     st.dataframe(df, use_container_width=True)
 
