@@ -163,50 +163,41 @@ def run():
                 sftp_out["Cargo Control Number"] = sftp_df["Tracking Number/Package Barcode"]
                 sftp_out["Order Number"] = sftp_df["Tracking Number/Package Barcode"]
 
-            # REMOVE MATCHED RECORDS
+            
+            # CLEAN KEYS (USE SAME DF)
 
-                # Normalize values
-            candata_orders = (
-                candata_out["Order Number"]
-                .astype(str)
-                .str.strip()
-            )
+            candata_orders = candata_out["Order Number"].astype(str).str.strip()
 
-            sftp_tracking = (
-                sftp_df["Tracking Number/Package Barcode"]
-                .astype(str)
-                .str.strip()
-            )
+            sftp_out["Tracking Clean"] = sftp_out["Order Number"].astype(str).str.strip()
 
-            # Remove SFTP rows that already exist in Candata
-            sftp_out = sftp_out[
-                ~sftp_tracking.isin(candata_orders)
-            ].copy()
+            # MATCH LOGIC (ONLY ONE SOURCE)
 
-            # Unique values only
-            candata_unique = set(candata_orders.unique())
-            sftp_unique = set(sftp_tracking.unique())   
+            mask_match = sftp_out["Tracking Clean"].isin(candata_orders)
 
-                # Match count
-            match_count = len(candata_unique.intersection(sftp_unique))
+            # COUNTS (NOW CORRECT)
 
-                # No match count
-            no_match_count = len(sftp_unique - candata_unique)
+            match_count = mask_match.sum()
+            no_match_count = (~mask_match).sum()
 
-                # Show counts in Streamlit
-            metric_col1, metric_col2 = st.columns(2)
+            # FILTER SFTP
 
-            with metric_col1:
-                st.metric(
-                    label="✅ Match Found (Skipped from SFTP)",
-                    value=match_count
-                    )
+            sftp_out = sftp_out[~mask_match].copy()
 
-            with metric_col2:
-                st.metric(
-                    label="📦 No Match (Included from SFTP)",
-                    value=no_match_count
-                    )
+            sftp_out.drop(columns=["Tracking Clean"], inplace=True)
+
+            # UNIQUE CHECK (OPTIONAL BUT CLEAN)
+
+            candata_unique = candata_orders.nunique()
+            sftp_unique = sftp_out["Order Number"].astype(str).nunique()
+
+            # SHOW METRICS
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.metric("✅ Match Found (Skipped from SFTP)", int(match_count))
+
+            with col2:
+                st.metric("📦 No Match (Included from SFTP)", int(no_match_count))
                 
             # MERGE LOGIC (IMPORTANT)
 
