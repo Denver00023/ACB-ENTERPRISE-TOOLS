@@ -86,6 +86,15 @@ def run():
             candata_df.columns = candata_df.columns.str.strip()
             sftp_df.columns = sftp_df.columns.str.strip()
 
+            for df in [candata_df, sftp_df]:
+                if "CCI Line#" in df.columns:
+                    df["CCI Line#"] = (
+                    df["CCI Line#"]
+                    .astype(str)
+                    .str.replace(".0", "", regex=False)
+                    .replace("nan", "")
+                    )
+
             def fix_hs_code(col):
                 return (
                 col.astype(str)
