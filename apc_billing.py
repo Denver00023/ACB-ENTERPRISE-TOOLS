@@ -5,17 +5,14 @@ import io
 
 def run():
 
-    # =====================================================
     # HEADER
-    # =====================================================
 
     st.title("📦 APC BILLING")
 
     st.caption("CANDATA REPORT + SFTP = DUTIES HEADER TEMPLATE")
 
-    # =====================================================
+
     # FINAL OUTPUT STRUCTURE
-    # =====================================================
 
     FINAL_COLUMNS = [
         "Transaction Number",
@@ -52,9 +49,7 @@ def run():
         "Exchange Rate"
     ]
 
-    # =====================================================
     # FILE UPLOAD
-    # =====================================================
 
     col1, col2 = st.columns(2)
 
@@ -67,9 +62,7 @@ def run():
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
 
-    # =====================================================
     # RUN BUTTON
-    # =====================================================
 
     if st.button("🚀 Process Files"):
 
@@ -79,15 +72,11 @@ def run():
 
         try:
 
-            # =================================================
             # LOAD DATA
-            # =================================================
-
             def load_file(file):
                 if file.name.endswith(".csv"):
                     return pd.read_csv(file)
                 return pd.read_excel(file)
-            
             
             candata_df = load_file(candata_file).fillna("")
             sftp_df = load_file(sftp_file).fillna("")
@@ -111,10 +100,7 @@ def run():
             if "Item HS Code" in sftp_df.columns:
                 sftp_df["Item HS Code"] = fix_hs_code(sftp_df["Item HS Code"])
 
-            # =================================================
             # CANDATA MAPPING
-            # =================================================
-
             candata_map = {
                 "Transaction Number": "Transaction Number",
                 "Product Description": "Product Description",
@@ -129,7 +115,7 @@ def run():
                 "Duty Rate": "Duty Rate",
                 "Customs Duty (CAD)": "Customs Duty (CAD)",
                 "GST (CAD)": "GST (CAD)",
-                "Provincial Sales Tax (CAD)": "Provincial Sales Tax (CAD)",
+                "Provincial Sales Tax (CAD)": "HST (CAD)",
                 "Payment Terms": "Payment Terms",
                 "Bill of Lading": "Bill of Lading",
                 "Cargo Control Number":"Cargo Control Number",
@@ -148,10 +134,7 @@ def run():
                 if src in candata_df.columns:
                     candata_out[tgt] = candata_df[src]
 
-            # =================================================
             # SFTP MAPPING
-            # =================================================
-
             sftp_out = pd.DataFrame()
 
             sftp_map = {
@@ -180,29 +163,65 @@ def run():
                 sftp_out["Cargo Control Number"] = sftp_df["Tracking Number/Package Barcode"]
                 sftp_out["Order Number"] = sftp_df["Tracking Number/Package Barcode"]
 
-            # =================================================
+            # REMOVE MATCHED RECORDS
+
+                # Normalize values
+            candata_orders = (
+                candata_out["Order Number"]
+                .astype(str)
+                .str.strip()
+            )
+
+            sftp_tracking = (
+                sftp_df["Tracking Number/Package Barcode"]
+                .astype(str)
+                .str.strip()
+            )
+
+            # Remove SFTP rows that already exist in Candata
+            sftp_out = sftp_out[
+                ~sftp_tracking.isin(candata_orders)
+            ].copy()
+
+            # Unique values only
+            candata_unique = set(candata_orders.unique())
+            sftp_unique = set(sftp_tracking.unique())   
+
+                # Match count
+            match_count = len(candata_unique.intersection(sftp_unique))
+
+                # No match count
+            no_match_count = len(sftp_unique - candata_unique)
+
+                # Show counts in Streamlit
+            metric_col1, metric_col2 = st.columns(2)
+
+            with metric_col1:
+                st.metric(
+                    label="✅ Match Found (Skipped from SFTP)",
+                    value=match_count
+                    )
+
+            with metric_col2:
+                st.metric(
+                    label="📦 No Match (Included from SFTP)",
+                    value=no_match_count
+                    )
+                
             # MERGE LOGIC (IMPORTANT)
-            # =================================================
 
             final_df = candata_out.copy()
 
-            # -------------------------------
             # INSERT BLANK SEPARATOR ROW
-            # -------------------------------
 
             blank_row = pd.DataFrame([{col: "" for col in FINAL_COLUMNS}])
 
             final_df = pd.concat([final_df, blank_row], ignore_index=True)
 
-            # -------------------------------
             # ADD SFTP DATA AFTER BLANK ROW
-            # -------------------------------
-
             final_df = pd.concat([final_df, sftp_out], ignore_index=True)
 
-            # =================================================
             # FINAL STRUCTURE ENFORCEMENT
-            # =================================================
 
             for col in FINAL_COLUMNS:
                 if col not in final_df.columns:
@@ -211,7 +230,7 @@ def run():
             final_df = final_df[FINAL_COLUMNS]
 
             DEFAULT_VALUES = {
-
+                "Provincial Sales Tax (CAD)":"0",
             }
             
             HST_MAP = {
@@ -228,6 +247,17 @@ def run():
 
                     final_df["HST Rate"] = final_df["Consignee Province"].map(HST_MAP)
                     final_df["HST Rate"] = final_df["HST Rate"].fillna("")
+            
+            if "HST (CAD)" in final_df.columns:
+
+                # Convert HST amount to numeric
+                final_df["HST (CAD)"] = pd.to_numeric(final_df["HST (CAD)"],errors="coerce").fillna(0)
+
+                # If HST amount is 0 -> HST Rate should also be 0
+                final_df.loc[final_df["HST (CAD)"] == 0,"HST Rate"] = 0
+
+                # Fill remaining blanks
+                final_df["HST Rate"] = final_df["HST Rate"].fillna(0)
 
             for col, default_value in DEFAULT_VALUES.items():
 
@@ -235,20 +265,15 @@ def run():
 
                     final_df[col] = final_df[col].replace("", pd.NA)
                     final_df[col] = final_df[col].fillna(default_value)
-            # =================================================
-            # OUTPUT
-            # =================================================
 
+            # OUTPUT
             st.success("Processing Complete")
 
             st.subheader("📄 Final Output Preview")
 
             st.dataframe(final_df, use_container_width=True, height=450)
 
-            # =================================================
             # EXPORT
-            # =================================================
-
             output = io.BytesIO()
 
             with pd.ExcelWriter(output, engine="openpyxl") as writer:
@@ -264,10 +289,8 @@ def run():
         except Exception as e:
             st.error(f"❌ Error: {str(e)}")
 
-
-# =========================================================
 # ENTRY POINT
-# =========================================================
+
 
 if __name__ == "__main__":
     run()
