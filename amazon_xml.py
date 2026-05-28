@@ -165,12 +165,12 @@ def build_row(header, item):
         "Port_of_Discharge_Sublocation Code": "",
         "IID_Y/N": "Y",
         "PGA Flag": "CFIA",
-        "Category": "",
+        "Category": "HVS",
         "MAWB #": "",
-        "Carrier code": header.get("carrierName", ""),
+        "Carrier code": "1BML",
         "Manifest Only": "",
         "Movement Type": "",
-        "TARIFF_TREATMENT_CODE": "",
+        "TARIFF_TREATMENT_CODE": "2",
         "External Reference 2": header.get("PONumber", "")
     }
 
