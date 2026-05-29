@@ -126,7 +126,12 @@ def build_row(header, item):
 
         # ---------------- PACKAGE / ITEM ----------------
         "Parcel_item_weight": item.get("weight", ""),
-        "Parcel_item_weight_UOM": item.get("weight_uom", ""),
+        
+        "Parcel_item_weight_UOM": (
+            "LBR" if item.get("weight_uom", "").upper() == "LB"
+            else "KGM" if item.get("weight_uom", "").upper() == "KG"
+            else item.get("weight_uom", "")
+        ),
 
         "Width": "",
         "Length": "",
@@ -155,11 +160,17 @@ def build_row(header, item):
 
         # ---------------- OTHERS ----------------
         "Url": "",
-        "Importer_number": header.get("merchantId", ""),
-        "Importer_party_id": header.get("merchantId", ""),
+
+        "Importer_number": (
+            "789682689RM0002"
+            if header.get("importerType", "").upper() == "AIOR"
+            else ""
+        ),
+
+        "Importer_party_id": "",
 
         "AutoCalc_Provincial_Rate": "C",
-        "CBSA_Port_of_Release": "",
+        "CBSA_Port_of_Release": "0453",
         "CBSA_Warehouse_Sub_Location_Code": "",
         "Port_of_Discharge": "",
         "Port_of_Discharge_Sublocation Code": "",
