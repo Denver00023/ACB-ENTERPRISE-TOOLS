@@ -5,6 +5,7 @@ import candata
 import splitpdf
 import amazon_xml
 import apc_billing
+import aci_json
 
 # --------PAGE CONFIG----------
 
@@ -125,6 +126,9 @@ if st.sidebar.button("📊 AMAZON B2B XML TO CANDATA UPLOAD FILE"):
 if st.sidebar.button("📦 APC BILLING"):
     st.session_state.module = "APC_BILLING"
 
+if st.sidebar.button("📦 ACI JSON SHIPMENT CONVERTER"):
+    st.session_state.module = "JSON"
+
 # -------ROUTING ENGINE--------
 if st.session_state.module == "HOME":
 
@@ -158,3 +162,6 @@ elif st.session_state.module == "AMAZON_XML":
 
 elif st.session_state.module == "APC_BILLING":
     output = apc_billing.run()
+
+elif st.session_state.module == "JSON":
+    aci_json.run()
