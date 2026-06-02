@@ -7,6 +7,7 @@ import amazon_xml
 import apc_billing
 import aci_json
 import amazon_xml_gets
+import apc_billing_header_report
 
 # --------PAGE CONFIG----------
 
@@ -127,8 +128,11 @@ if st.sidebar.button("🛒 AMAZON B2B XML TO CANDATA UPLOAD FILE"):
 if st.sidebar.button("🛒 AMAZON B2B XML TO GETS UPLOAD FILE"):
     st.session_state.module = "AMAZON_XML_GETS"
 
-if st.sidebar.button("💳 APC BILLING"):
+if st.sidebar.button("💳 APC BILLING DETAIL REPORT"):
     st.session_state.module = "APC_BILLING"
+
+if st.sidebar.button("💳 APC BILLING HEADER REPORT"):
+    st.session_state.module = "APC_BILLING_HEADER_REPORT"
 
 if st.sidebar.button("📦🔄 ACI JSON SHIPMENT CONVERTER"):
     st.session_state.module = "JSON"
@@ -162,10 +166,13 @@ elif st.session_state.module == "CANDATA":
     candata.run()
 
 elif st.session_state.module == "AMAZON_XML":
-   amazon_xml.run()
+    amazon_xml.run()
 
 elif st.session_state.module == "APC_BILLING":
     output = apc_billing.run()
+
+elif st.session_state.module == "APC_BILLING_HEADER_REPORT":
+    output = apc_billing_header_report.run()
 
 elif st.session_state.module == "JSON":
     aci_json.run()

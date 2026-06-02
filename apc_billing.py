@@ -7,9 +7,9 @@ def run():
 
     # HEADER
 
-    st.title("📦 APC BILLING")
+    st.title("📦 APC BILLING DETAIL REPORT")
 
-    st.caption("CANDATA REPORT + SFTP = DUTIES HEADER TEMPLATE")
+    st.caption("CANDATA REPORT + SFTP = DETAIL REPORT TEMPLATE")
 
 
     # FINAL OUTPUT STRUCTURE
@@ -59,6 +59,12 @@ def run():
     with col2:
         sftp_file = st.file_uploader("Upload SFTP File", type=["xlsx", "csv"])
 
+    mawb_input = st.text_input(
+        "MAWB #",
+        placeholder="123-45678901"
+        )
+    st.caption("Note: Please enter MAWB before uploading files. These will be used in the output filename.")
+
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
 
@@ -86,15 +92,6 @@ def run():
             candata_df.columns = candata_df.columns.str.strip()
             sftp_df.columns = sftp_df.columns.str.strip()
 
-            for df in [candata_df, sftp_df]:
-                if "CCI Line#" in df.columns:
-                    df["CCI Line#"] = (
-                    df["CCI Line#"]
-                    .astype(str)
-                    .str.replace(".0", "", regex=False)
-                    .replace("nan", "")
-                    )
-
             def fix_hs_code(col):
                 return (
                 col.astype(str)
@@ -120,6 +117,7 @@ def run():
                 "Port Number": "Port Number",
                 "Vendor Name": "Vendor Name",
                 "Value For Duty (CAD)": "Value For (CAD)",
+                "USD": "USD", # Assuming the CANDATA file has a column named "USD" for the value.
                 "Classification": "Classification",
                 "Duty Rate": "Duty Rate",
                 "Customs Duty (CAD)": "Customs Duty (CAD)",
@@ -159,8 +157,9 @@ def run():
                 "Item Description": "Product Description",
                 "Item HS Code": "Classification",
                 "Item Quantity": "Quantity",
-                "USD": "USD",
-                "CAD": "Value For (CAD)",
+                "USD": "USD", # Assuming the SFTP file has a column named "USD" for the value.
+                "CAD": "Value For (CAD)", # Assuming the SFTP file has a column named "CAD" for the value.
+                
             }
 
             for src, tgt in sftp_map.items():
@@ -291,7 +290,7 @@ def run():
             st.download_button(
                 "📥 Download Excel",
                 data=output.getvalue(),
-                file_name=f"APC_BILLING_DUTIESHEADER_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
+                file_name=f"APC_POSTAL_BILLING_DETAIL_REPORT_{mawb_input}_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
