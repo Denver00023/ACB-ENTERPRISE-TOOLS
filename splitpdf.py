@@ -11,6 +11,9 @@ def run():
         type=["zip"]
     )
 
+    st.markdown("---")
+    st.caption("© 2026 ACB Toolkit | Developed by IT Department")
+
     max_size_mb = st.number_input("Max folder size (MB)", value=20)
     max_size = max_size_mb * 1024 * 1024
 

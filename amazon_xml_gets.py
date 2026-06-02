@@ -359,6 +359,9 @@ def run():
 
     files = st.file_uploader("Upload XML Files", type=["xml"], accept_multiple_files=True)
 
+    st.markdown("---")
+    st.caption("© 2026 ACB Toolkit | Developed by IT Department")
+
     if not files:
         return
 

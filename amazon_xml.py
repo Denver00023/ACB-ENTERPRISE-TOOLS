@@ -220,6 +220,9 @@ def run():
         accept_multiple_files=True
     )
 
+    st.markdown("---")
+    st.caption("© 2026 ACB Toolkit | Developed by IT Department")
+
     if not uploaded_files:
         return
 
