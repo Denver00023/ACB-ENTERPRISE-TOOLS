@@ -4,18 +4,18 @@ import io
 from datetime import datetime
 
 
-# =========================================================
+
 # PAGE CONFIG
-# =========================================================
+
 st.set_page_config(
     page_title="CANDATA FILE PROCESSOR",
     page_icon="assets/qwe1.ico",
     layout="wide"
 )
 
-# =========================================================
+
 # BASE HEADERS
-# =========================================================
+
 BASE_HEADERS = [
     "Inco_term",
     "Mode_of_transport",
@@ -82,9 +82,9 @@ BASE_HEADERS = [
     "Movement Type"
 ]
 
-# =========================================================
+
 # CLIENT CONFIG
-# =========================================================
+
 CLIENT_CONFIG = {
 
     "REGULAR AMAZON": {
@@ -196,9 +196,8 @@ CLIENT_CONFIG = {
     }
 }
 
-# =========================================================
 # REQUIRED COLUMNS
-# =========================================================
+
 REQUIRED_COLUMNS = [
     "Reliable_tracking",
     "IID_Y/N",
@@ -207,9 +206,8 @@ REQUIRED_COLUMNS = [
 ]
 
 
-# =========================================================
 # UTILITIES
-# =========================================================
+
 def clean_columns(df):
 
     df.columns = (
@@ -251,16 +249,14 @@ def protect_excel_formula(value):
     return value
 
 
-# =========================================================
 # VALIDATION
-# =========================================================
+
 def validate_data(df):
 
     audit_rows = []
-
-    # =====================================================
+    
     # IID VALIDATION
-    # =====================================================
+    
     iid_group = (
         df.groupby("Reliable_tracking")["IID_Y/N"]
         .apply(
@@ -286,10 +282,9 @@ def validate_data(df):
                 "Details":
                     f"Tracking {tracking} has both Y and N rows"
             })
-
-    # =====================================================
+    
     # VALUE VALIDATION
-    # =====================================================
+    
     df["ITEM_VALUE_FLOAT"] = (
         df["Total_value_of_item"]
         .apply(safe_float)
@@ -315,9 +310,8 @@ def validate_data(df):
             .tolist()
         )
 
-        # =================================================
         # PARCEL VALUE CONSISTENCY
-        # =================================================
+
         if len(parcel_values) > 1:
 
             audit_rows.append({
@@ -359,10 +353,8 @@ def validate_data(df):
 
     return audit_rows
 
-
-# =========================================================
 # PROCESS DATA
-# =========================================================
+
 def process_data(
     df,
     config,
@@ -380,20 +372,18 @@ def process_data(
         "importer_rules",
         {}
     )
-
-    # =====================================================
+    
     # FILTER IID = Y
-    # =====================================================
+    
     df = df[
         df["IID_Y/N"]
         .astype(str)
         .str.strip()
         .str.upper() == "Y"
     ]
-
-    # =====================================================
+    
     # PROCESS ROWS
-    # =====================================================
+    
     for _, row in df.iterrows():
 
         mapped_row = {}
@@ -410,9 +400,8 @@ def process_data(
                 ""
             )
 
-            # =============================================
             # APPLY DEFAULTS
-            # =============================================
+
             if not str(value).strip():
 
                 value = defaults.get(
@@ -420,9 +409,8 @@ def process_data(
                     ""
                 )
 
-            # =============================================
             # APPLY OVERRIDES
-            # =============================================
+
             override_value = overrides.get(
                 final_col,
                 ""
@@ -431,9 +419,8 @@ def process_data(
             if override_value:
                 value = override_value
 
-            # =============================================
             # IMPORTER PARTY RULES
-            # =============================================
+
             if final_col == "Importer_party_id":
 
                 importer_number = str(
@@ -452,29 +439,25 @@ def process_data(
             mapped_row[final_col] = value
 
         output_rows.append(mapped_row)
-
-    # =====================================================
+    
     # FINAL DATAFRAME
-    # =====================================================
+    
     final_df = pd.DataFrame(output_rows)
 
     final_df = final_df.reindex(
         columns=final_headers
     )
-
-    # =====================================================
+    
     # EXCEL FORMULA PROTECTION
-    # =====================================================
+    
     final_df = final_df.map(
         protect_excel_formula
     )
 
     return final_df
 
-
-# =========================================================
 # EXPORT EXCEL
-# =========================================================
+
 def generate_excel(df):
 
     output = io.BytesIO()
@@ -494,26 +477,23 @@ def generate_excel(df):
 
     return output
 
-
-# =========================================================
 # MAIN APP
-# =========================================================
+
 def run():
 
     st.title("📊 CANDATA FILE PROCESSOR")
 
-    # =====================================================
+    
     # CLIENT TYPE
-    # =====================================================
+    
     client_type = st.radio(
         "Select Client Template",
         list(CLIENT_CONFIG.keys()),
         horizontal=True
     )
-
-    # =====================================================
+    
     # OPTIONAL INPUTS
-    # =====================================================
+    
     col1, col2 = st.columns(2)
 
     with col1:
@@ -540,10 +520,9 @@ def run():
         )
 
     st.caption("“Note: Filling in these fields is optional. If you prefer not to use them, simply leave them blank. However, if you do provide values, they will be included in the final output of the Excel download file.”")
-
-    # =====================================================
+    
     # FILE UPLOAD
-    # =====================================================
+    
     client_file = st.file_uploader(
         "Upload Client File",
         type=["xlsx", "xls"]
@@ -553,10 +532,9 @@ def run():
 
     st.markdown("----")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
-
-    # =====================================================
+    
     # PROCESS
-    # =====================================================
+    
     if st.button("🚀 Process"):
 
         if not client_file:
@@ -572,24 +550,21 @@ def run():
             with st.spinner(
                 "Processing file..."
             ):
-
-                # =========================================
+                
                 # READ EXCEL
-                # =========================================
+                
                 df = pd.read_excel(
                     client_file,
                     dtype=str,
                     engine="openpyxl"
                 ).fillna("")
-
-                # =========================================
+                
                 # CLEAN COLUMNS
-                # =========================================
+                
                 df = clean_columns(df)
-
-                # =========================================
+                
                 # VALIDATE REQUIRED COLUMNS
-                # =========================================
+                
                 missing_cols = validate_required_columns(df)
 
                 if missing_cols:
@@ -600,20 +575,18 @@ def run():
                     )
 
                     st.stop()
-
-                # =========================================
+                
                 # CONFIG
-                # =========================================
+                
                 config = CLIENT_CONFIG[client_type]
 
                 final_headers = (
                     BASE_HEADERS +
                     config["extra_headers"]
                 )
-
-                # =========================================
+                
                 # OVERRIDES
-                # =========================================
+                
                 overrides = {
 
                     "MAWB #":
@@ -628,15 +601,13 @@ def run():
                     "External Reference 2":
                         external_ref_input.strip()
                 }
-
-                # =========================================
+                
                 # VALIDATION
-                # =========================================
+                
                 audit_rows = validate_data(df)
-
-                # =========================================
+                
                 # VALIDATION FAILED
-                # =========================================
+                
                 if audit_rows:
 
                     audit_df = pd.DataFrame(
@@ -660,20 +631,18 @@ def run():
                         )
 
                     st.stop()
-
-                # =========================================
+                
                 # PROCESS DATA
-                # =========================================
+                
                 final_df = process_data(
                     df=df,
                     config=config,
                     final_headers=final_headers,
                     overrides=overrides
                 )
-
-                # =========================================
+                
                 # METRICS
-                # =========================================
+                
                 col1, col2 = st.columns(2)
 
                 with col1:
@@ -689,33 +658,29 @@ def run():
                         "Validation Errors",
                         0
                     )
-
-                # =========================================
+                
                 # SUCCESS
-                # =========================================
+                
                 st.success(
                     f"✅ Successfully processed "
                     f"{len(final_df)} rows"
                 )
-
-                # =========================================
+                
                 # DISPLAY DATA
-                # =========================================
+                
                 st.dataframe(
                     final_df,
                     use_container_width=True
                 )
-
-                # =========================================
+                
                 # EXPORT EXCEL
-                # =========================================
+                
                 output = generate_excel(
                     final_df
                 )
-
-                # =========================================
+                
                 # SAFE FILENAME
-                # =========================================
+                
                 safe_mawb = (
                     mawb_input.strip()
                     or "NO_MAWB"
@@ -731,10 +696,9 @@ def run():
                     f"{timestamp}_"
                     f"CANDATA_UPLOAD_FILE.xlsx"
                 )
-
-                # =========================================
+                
                 # DOWNLOAD BUTTON
-                # =========================================
+                
                 st.download_button(
                     label="📥 Download Result",
                     data=output.getvalue(),
@@ -750,8 +714,7 @@ def run():
             st.exception(e)
 
 
-# =========================================================
 # RUN APP
-# =========================================================
+
 if __name__ == "__main__":
     run()

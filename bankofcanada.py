@@ -4,39 +4,35 @@ import pandas as pd
 from datetime import date, timedelta
 
 
-# =========================
+
 # ROLLING WINDOW ENGINE
-# =========================
+
 def get_rolling_window(days: int):
     today = date.today() - timedelta(days=1)  # 👈 SAFE (Canada delay)
     start_date = today - timedelta(days=days)
     return start_date, today
 
 
-# =========================
 # MAIN APP
-# =========================
+
 def run():
 
     st.title("💱 FX Rate (Bank of Canada)")
     st.caption("Flexible FX Dashboard (Rolling + Custom Range)")
 
-    # =========================
     # SERIES
-    # =========================
+    
     series = st.selectbox("Currency Pair", ["FXUSDCAD"])
 
-    # =========================
     # MODE SWITCH
-    # =========================
+    
     mode = st.radio(
         "Select Mode",
         ["Rolling Window", "Custom Date Range"]
     )
 
-    # =========================
     # INPUTS
-    # =========================
+    
     if mode == "Rolling Window":
 
         days_back = st.number_input(
@@ -62,9 +58,8 @@ def run():
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
 
-    # =========================
     # AUTO FETCH (NO BUTTON)
-    # =========================
+    
     url = (
         f"https://www.bankofcanada.ca/valet/observations/"
         f"{series}?start_date={start}&end_date={end}"
@@ -79,9 +74,8 @@ def run():
 
     data = res.json()
 
-    # =========================
     # PARSE DATA
-    # =========================
+    
     rows = []
 
     for obs in data.get("observations", []):
@@ -100,9 +94,8 @@ def run():
     df = pd.DataFrame(rows)
     df["Date"] = pd.to_datetime(df["Date"])
 
-    # =========================
     # CALCULATIONS
-    # =========================
+    
     min_row = df.loc[df["Rate"].idxmin()]
     max_row = df.loc[df["Rate"].idxmax()]
     avg_rate = df["Rate"].mean()
@@ -110,9 +103,8 @@ def run():
     def inv(x):
         return round(1 / x, 4)
 
-    # =========================
     # STYLE
-    # =========================
+    
     st.markdown("""
     <style>
     .fx-card {
@@ -146,9 +138,8 @@ def run():
     </style>
     """, unsafe_allow_html=True)
 
-    # =========================
     # SUMMARY CARDS
-    # =========================
+    
     st.subheader("📊 FX Summary (USD → CAD)")
 
     c1, c2, c3 = st.columns(3)
@@ -185,15 +176,13 @@ def run():
 
     st.markdown("---")
 
-    # =========================
     # TABLE
-    # =========================
+    
     st.subheader("📄 Exchange Rates")
     st.dataframe(df, use_container_width=True)
 
-    # =========================
     # DOWNLOAD
-    # =========================
+
     csv = df.to_csv(index=False).encode("utf-8")
 
     st.download_button(

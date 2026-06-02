@@ -4,9 +4,9 @@ import xml.etree.ElementTree as ET
 from io import BytesIO
 
 
-# ===================================================
+
 # XML HEADER EXTRACTOR
-# ===================================================
+
 def extract_header(root):
 
     header = root.find("manifestHeader")
@@ -37,9 +37,9 @@ def extract_header(root):
     return data
 
 
-# ===================================================
+
 # ITEM EXTRACTOR
-# ===================================================
+
 def extract_items(root):
 
     items = []
@@ -73,9 +73,9 @@ def extract_items(root):
     return items
 
 
-# ===================================================
+
 # BUILD CANADA ROW
-# ===================================================
+
 def build_row(header, item):
 
     seller = header.get("seller", {})
@@ -186,9 +186,9 @@ def build_row(header, item):
     }
 
 
-# ===================================================
+
 # CREATE EXCEL (ONE SHEET ONLY)
-# ===================================================
+
 def create_excel(df):
 
     output = BytesIO()
@@ -206,9 +206,9 @@ def create_excel(df):
     return output
 
 
-# ===================================================
+
 # STREAMLIT APP
-# ===================================================
+
 def run():
 
     st.title("📄 XML → CANDATA UPLOAD FILE")
@@ -279,8 +279,7 @@ def run():
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-# ===================================================
 # ENTRY
-# ===================================================
+
 if __name__ == "__main__":
     run()

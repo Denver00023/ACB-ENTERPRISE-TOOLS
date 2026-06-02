@@ -6,15 +6,11 @@ from collections import Counter
 
 def run():
 
-    # =====================================================
     # PAGE HEADER
-    # =====================================================
 
     st.title("📊 APC Excel Processor Tool")
 
-    # =====================================================
     # FIXED TEMPLATE HEADERS
-    # =====================================================
 
     TEMPLATE_COLUMNS = [
         "Inco_term",
@@ -76,9 +72,7 @@ def run():
         "Masterbill"
     ]
 
-    # =====================================================
     # VALIDATION / FORMAT ROW
-    # =====================================================
 
     HEADER_RULES = [
         "O,1…8 AN",
@@ -140,10 +134,9 @@ def run():
         "M,1…256 AN"
     ]
 
-    # =====================================================
-    # FILE UPLOADS
-    # =====================================================
-    # FILENAME
+   
+
+    # FILE UPLOADS & FILENAME
     col1, col2 = st.columns(2)
 
     with col1:
@@ -174,9 +167,7 @@ def run():
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
 
-    # =====================================================
     # PROCESS BUTTON
-    # =====================================================
 
     if st.button("🚀 Process Files"):
 
@@ -190,9 +181,7 @@ def run():
 
         try:
 
-            # =====================================================
             # READ FILES
-            # =====================================================
 
             client_df = pd.read_excel(
                 client_file,
@@ -204,9 +193,7 @@ def run():
                 dtype=str
             ).fillna('')
 
-            # =====================================================
             # BUILD LOOKUP DICTIONARY
-            # =====================================================
 
             lookup_dict = {}
 
@@ -234,9 +221,7 @@ def run():
                     'Pickup_country': 'US'
                 }
 
-            # =====================================================
             # DEFAULT VALUES
-            # =====================================================
 
             DEFAULT_FIELDS = {
                 'Inco_term': 'DDP',
@@ -255,9 +240,7 @@ def run():
                 'IID_Y/N': 'N'
             }
 
-            # =====================================================
             # PROCESS CLIENT DATA
-            # =====================================================
 
             output_rows = []
 
@@ -271,9 +254,7 @@ def run():
                     row.iloc[0]
                 ).strip()
 
-                # =============================================
                 # DETECT MARKER ROWS
-                # =============================================
 
                 if first_col.startswith(("APC", "REL")):
 
@@ -281,9 +262,7 @@ def run():
 
                     continue
 
-                # =============================================
                 # SKIP ROWS BEFORE FIRST MARKER
-                # =============================================
 
                 if not current_marker:
                     continue
@@ -294,18 +273,14 @@ def run():
 
                 marker_counter[current_marker] += 1
 
-                # =============================================
                 # LOOKUP DATA
-                # =============================================
 
                 lookup_data = lookup_dict.get(
                     current_marker,
                     {}
                 )
 
-                # =============================================
                 # APPLY LOOKUP VALUES
-                # =============================================
 
                 for key, value in lookup_data.items():
 
@@ -313,9 +288,7 @@ def run():
 
                         data[key] = value
 
-                # =============================================
                 # APPLY DEFAULTS
-                # =============================================
 
                 for key, value in DEFAULT_FIELDS.items():
 
@@ -325,9 +298,7 @@ def run():
 
                 output_rows.append(data)
 
-            # =====================================================
             # BUILD FINAL DATAFRAME
-            # =====================================================
 
             final_df = pd.DataFrame(output_rows)
 
@@ -337,9 +308,7 @@ def run():
             # NOW ADD PREFIX
             final_df['Reliable_tracking'] = 'APC' + final_df['Reliable_tracking'].astype(str)
 
-            # =============================================
             # ADD MISSING COLUMNS
-            # =============================================
 
             for col in TEMPLATE_COLUMNS:
 
@@ -347,15 +316,11 @@ def run():
 
                     final_df[col] = ''
 
-            # =============================================
             # FORCE EXACT COLUMN ORDER
-            # =============================================
-
+            
             final_df = final_df[TEMPLATE_COLUMNS]
 
-            # =====================================================
             # FINAL OUTPUT CALCULATION (OVERWRITE VALUES)
-            # =====================================================
 
             # Ensure numeric conversion
             final_df['Unit_price'] = pd.to_numeric(final_df['Unit_price'], errors='coerce').fillna(0)
@@ -378,27 +343,21 @@ def run():
             lambda x: float(f"{x:.2f}")
             )
 
-            # =====================================================
             # VALIDATION HEADER ROW
-            # =====================================================
 
             rules_df = pd.DataFrame(
                 [HEADER_RULES],
                 columns=TEMPLATE_COLUMNS
             )
 
-            # =============================================
             # COMBINE RULES + DATA
-            # =============================================
 
             export_df = pd.concat(
                 [rules_df, final_df],
                 ignore_index=True
             )
 
-            # =====================================================
             # EXPORT EXCEL
-            # =====================================================
 
             output = io.BytesIO()
 
@@ -414,16 +373,12 @@ def run():
                     sheet_name='Worksheet'
                 )
 
-            # =====================================================
             # SUCCESS
-            # =====================================================
 
             st.success("✅ Processing Complete!")
 
-            # =====================================================
             # METRICS
-            # =====================================================
-
+            
             metric_col1, metric_col2 = st.columns(2)
 
             with metric_col1:
@@ -442,11 +397,9 @@ def run():
                         pd.Series(dtype=str)
                     ).nunique()
                 )
-
-            # =====================================================
+            
             # FINAL OUTPUT PREVIEW
-            # =====================================================
-
+            
             st.markdown("---")
             st.subheader("📄 Final Output Preview")
 
@@ -455,11 +408,9 @@ def run():
                 use_container_width=True,
                 height=350
             )
-
-            # =====================================================
+            
             # DOWNLOAD BUTTON
-            # =====================================================
-
+            
             st.markdown("---")
 
             st.download_button(
