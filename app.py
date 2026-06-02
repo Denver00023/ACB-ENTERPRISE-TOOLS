@@ -6,6 +6,7 @@ import splitpdf
 import amazon_xml
 import apc_billing
 import aci_json
+import amazon_xml_gets
 
 # --------PAGE CONFIG----------
 
@@ -117,16 +118,19 @@ if st.sidebar.button("💱 USD ↔️ CAD FX RATES"):
 if st.sidebar.button("📄 SPLIT PDF BATCHER"):
     st.session_state.module = "SPLITPDF"
 
-if st.sidebar.button("📊 CANDATA UPLOAD FILE"):
+if st.sidebar.button("🗃️ CANDATA UPLOAD FILE"):
     st.session_state.module = "CANDATA"
 
-if st.sidebar.button("📊 AMAZON B2B XML TO CANDATA UPLOAD FILE"):
+if st.sidebar.button("🛒 AMAZON B2B XML TO CANDATA UPLOAD FILE"):
     st.session_state.module = "AMAZON_XML"
 
-if st.sidebar.button("📦 APC BILLING"):
+if st.sidebar.button("🛒 AMAZON B2B XML TO GETS UPLOAD FILE"):
+    st.session_state.module = "AMAZON_XML_GETS"
+
+if st.sidebar.button("💳 APC BILLING"):
     st.session_state.module = "APC_BILLING"
 
-if st.sidebar.button("📦 ACI JSON SHIPMENT CONVERTER"):
+if st.sidebar.button("📦🔄 ACI JSON SHIPMENT CONVERTER"):
     st.session_state.module = "JSON"
 
 # -------ROUTING ENGINE--------
@@ -165,3 +169,6 @@ elif st.session_state.module == "APC_BILLING":
 
 elif st.session_state.module == "JSON":
     aci_json.run()
+
+elif st.session_state.module == "AMAZON_XML_GETS":
+    amazon_xml_gets.run()
