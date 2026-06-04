@@ -63,14 +63,13 @@ def run():
             candata_df.columns = candata_df.columns.str.strip()
             sftp_df.columns = sftp_df.columns.str.strip()
 
-            # Normalize CCN
-            if "Cargo Control Number" in candata_df.columns:
-                candata_df["Cargo Control Number"] = candata_df["Cargo Control Number"].astype(str).str.strip()
+            # Normalize Cargo Control Number and Order Number Assuming the CANDATA file already contains the Order Number, remove the "8308" prefix from the Cargo Control Number (CCN) and use the resulting value as the Order Number.
+            if "Order Number" in candata_df.columns:
+                candata_df["Order Number"] = candata_df["Order Number"].astype(str).str.strip()
 
             if "Tracking Number/Package Barcode" in sftp_df.columns:
                 sftp_df["Tracking Number/Package Barcode"] = sftp_df["Tracking Number/Package Barcode"].astype(str).str.strip()
-
-
+    
             # CANDATA MAP
             candata_map = {
                 "Transaction Number": "Transaction Number",
@@ -81,9 +80,9 @@ def run():
                 "Release Date": "Release Date",
                 "Order Number": "Order Number",
                 "Brokerage Fee": "Brokerage Fee",
-                "Value For Duty (CAD)": "Total Value For Duty (CAD)",
-                "Customs Duty (CAD)": "Total Customs Duties (CAD)",
-                "GST (CAD)": "Total GST (CAD)",
+                "Total Value For Duty (CAD)": "Total Value For Duty (CAD)",
+                "Total Customs Duties (CAD)": "Total Customs Duties (CAD)",
+                "Total GST (CAD)": "Total GST (CAD)",
                 "HST (CAD)": "HST (CAD)",
                 "Payment Terms": "Payment Terms",
                 "Bill of Lading": "Bill of Lading"
@@ -94,11 +93,9 @@ def run():
                 if src in candata_df.columns:
                     candata_out[tgt] = candata_df[src]
 
-
             # SFTP FILTER (IMPORTANT FIX)
 
-
-            candata_ccn = set(candata_out["Cargo Control Number"].astype(str))
+            candata_ccn = set(candata_out["Order Number"].astype(str))
 
             # remove duplicates inside SFTP first
             sftp_df = sftp_df.drop_duplicates(subset=["Tracking Number/Package Barcode"])
@@ -111,22 +108,10 @@ def run():
             # SFTP MAP
             sftp_map = {
                 "Tracking Number/Package Barcode": "Cargo Control Number",
-                "Port Number": "Port Number",
-                "Direct Ship Date": "Direct Ship Date",
-                "ETA Date": "ETA Date",
-                "Release Date": "Release Date",
-                "Order Number": "Order Number",
-                "Brokerage Fee": "Brokerage Fee",
-                "CAD": "Total Value For Duty (CAD)",
-                "Customs Duties": "Total Customs Duties (CAD)",
-                "GST": "Total GST (CAD)",
-                "HST": "HST (CAD)",
-                "Payment Terms": "Payment Terms",
-                "Bill of Lading": "Bill of Lading"
+                "Total Value": "Total Value For Duty (CAD)",
             }
 
             sftp_out = pd.DataFrame()
-
 
             for src, tgt in sftp_map.items():
                 if src in sftp_filtered.columns:
@@ -136,8 +121,7 @@ def run():
             if "Tracking Number/Package Barcode" in sftp_filtered.columns:
                 sftp_out["Cargo Control Number"] = sftp_filtered["Tracking Number/Package Barcode"]
                 sftp_out["Order Number"] = sftp_filtered["Tracking Number/Package Barcode"]
-
-
+            
             # METRICS
             sftp_ccn = set(sftp_filtered["Tracking Number/Package Barcode"])
 
@@ -151,7 +135,6 @@ def run():
 
             with colm2:
                 st.metric("📦 No Match (Included)", no_match_count)
-
 
             # MERGE
             blank_row = pd.DataFrame([{col: "" for col in FINAL_COLUMNS}])
