@@ -5,8 +5,8 @@ import io
 
 def run():
 
-    st.title("📦 APC BILLING DETAIL REPORT")
-    st.caption("CANDATA + CLIENT ")
+    st.title("📦 APC CLIENT DETAILS")
+    st.caption("CANDATA + CLIENT = CLIENT DETAILS TEMPLATE")
 
     # =========================
     # FINAL STRUCTURE
