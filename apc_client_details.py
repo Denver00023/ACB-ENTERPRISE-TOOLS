@@ -94,6 +94,9 @@ def run():
                 .str.strip()
                 .str.zfill(10)   # ensures 10-digit HS code
                 )
+            
+            if "Classification" in candata_df.columns:
+                candata_df["Classification"] = fix_hs_code(candata_df["Classification"])
 
             # =========================
             # CANDATA MAPPING (UNCHANGED)
