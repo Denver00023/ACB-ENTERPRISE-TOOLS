@@ -8,6 +8,7 @@ import apc_billing
 import aci_json
 import amazon_xml_gets
 import apc_billing_header_report
+import apc_client_details
 
 # --------PAGE CONFIG----------
 
@@ -131,6 +132,9 @@ if st.sidebar.button("🛒 AMAZON B2B XML TO GETS UPLOAD FILE"):
 if st.sidebar.button("💳 APC BILLING DETAIL REPORT"):
     st.session_state.module = "APC_BILLING"
 
+if st.sidebar.button("💳 APC CLIENT DETAILS"):
+    st.session_state.module = "APC_CLIENT_DETAILS"
+
 if st.sidebar.button("💳 APC BILLING HEADER REPORT"):
     st.session_state.module = "APC_BILLING_HEADER_REPORT"
 
@@ -170,6 +174,9 @@ elif st.session_state.module == "AMAZON_XML":
 
 elif st.session_state.module == "APC_BILLING":
     output = apc_billing.run()
+
+elif st.session_state.module == "APC_CLIENT_DETAILS":
+    output = apc_client_details.run()
 
 elif st.session_state.module == "APC_BILLING_HEADER_REPORT":
     output = apc_billing_header_report.run()
