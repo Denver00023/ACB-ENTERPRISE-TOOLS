@@ -111,7 +111,7 @@ div[data-testid="column"] {
 st.sidebar.title("☰ MENU")
 
 st.sidebar.caption("NAVIGATION")
-if st.sidebar.button("🚚 APC"):
+if st.sidebar.button("🚚 APC SFTP"):
     st.session_state.module = "APC"
 
 if st.sidebar.button("💱 USD ↔️ CAD FX RATES"):
