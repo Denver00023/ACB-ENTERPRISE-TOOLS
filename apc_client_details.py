@@ -86,6 +86,7 @@ def run():
 
             candata_df["Order Number"] = candata_df["Order Number"].astype(str).str.strip()
             client_df["Reliable_tracking"] = client_df["Reliable_tracking"].astype(str).str.strip()
+            candata_df["Port Number"] = candata_df["Port Number"].astype(str).str.replace(".0", "", regex=False)
 
             def fix_hs_code(col):
                 return (
