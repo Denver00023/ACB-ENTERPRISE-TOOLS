@@ -87,6 +87,14 @@ def run():
             candata_df["Order Number"] = candata_df["Order Number"].astype(str).str.strip()
             client_df["Reliable_tracking"] = client_df["Reliable_tracking"].astype(str).str.strip()
 
+            def fix_hs_code(col):
+                return (
+                col.astype(str)
+                .str.replace(".0", "", regex=False)
+                .str.strip()
+                .str.zfill(10)   # ensures 10-digit HS code
+                )
+
             # =========================
             # CANDATA MAPPING (UNCHANGED)
             # =========================
@@ -99,13 +107,13 @@ def run():
                 "Quantity": "Quantity",
                 "Port Number": "Port Number",
                 "Vendor Name": "Vendor Name",
-                "Value For Duty (CAD)": "Value For (CAD)",
+                "Value For (CAD)": "Value For (CAD)",
                 "USD": "USD",
                 "Classification": "Classification",
                 "Duty Rate": "Duty Rate",
                 "Customs Duty (CAD)": "Customs Duty (CAD)",
                 "GST (CAD)": "GST (CAD)",
-                "Provincial Sales Tax (CAD)": "HST (CAD)",
+                "Provincial Sales Tax (CAD)": "Provincial Sales Tax (CAD)",
                 "Payment Terms": "Payment Terms",
                 "Bill of Lading": "Bill of Lading",
                 "Cargo Control Number": "Cargo Control Number",
