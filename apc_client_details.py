@@ -113,6 +113,7 @@ def run():
                 "Duty Rate": "Duty Rate",
                 "Customs Duty (CAD)": "Customs Duty (CAD)",
                 "GST (CAD)": "GST (CAD)",
+                "HST (CAD)": "HST (CAD)",
                 "Provincial Sales Tax (CAD)": "Provincial Sales Tax (CAD)",
                 "Payment Terms": "Payment Terms",
                 "Bill of Lading": "Bill of Lading",
