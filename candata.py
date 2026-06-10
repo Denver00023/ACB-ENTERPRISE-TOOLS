@@ -519,6 +519,11 @@ def run():
             placeholder="0000"
         )
 
+    carrier_code_input = st.text_input(
+        "Carrier Code (optional COLUMN BI)",
+        placeholder="0000"
+        )
+    
     st.caption("“Note: Filling in these fields is optional. If you prefer not to use them, simply leave them blank. However, if you do provide values, they will be included in the final output of the Excel download file.”")
     
     # FILE UPLOAD
@@ -599,7 +604,10 @@ def run():
                         port_of_discharge_input.strip(),
 
                     "External Reference 2":
-                        external_ref_input.strip()
+                        external_ref_input.strip(),
+
+                    "Carrier code":
+                        carrier_code_input.strip()
                 }
                 
                 # VALIDATION
