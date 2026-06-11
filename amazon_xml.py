@@ -97,7 +97,7 @@ def build_row(header, item, mapping_dict):
 
     importer_party_id = lookup.get(
         "BroderEze Account",
-        lookup.get("token_id", "")
+        ""
     )
 
     return {
@@ -264,7 +264,7 @@ def run():
                     ).strip(),
 
                     "BroderEze Account": str(
-                        row.get("BroderEze Account", ""), row.get("Token ID", "")
+                        row.get("BroderEze Account", "")
                     ).strip()
                 }
 
