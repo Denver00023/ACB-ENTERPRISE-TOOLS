@@ -4,9 +4,8 @@ import xml.etree.ElementTree as ET
 from io import BytesIO
 
 
-# ===================================================
 # XML HEADER EXTRACTOR
-# ===================================================
+
 def extract_header(root):
 
     header = root.find("manifestHeader")
@@ -37,9 +36,8 @@ def extract_header(root):
     return data
 
 
-# ===================================================
 # ITEM EXTRACTOR
-# ===================================================
+
 def extract_items(root):
 
     items = []
@@ -73,9 +71,9 @@ def extract_items(root):
     return items
 
 
-# ===================================================
+
 # BUILD CANADA ROW
-# ===================================================
+
 def build_row(header, item, mapping_dict):
 
     seller = header.get("seller", {})
@@ -198,9 +196,8 @@ def build_row(header, item, mapping_dict):
     }
 
 
-# ===================================================
 # CREATE EXCEL (ONE SHEET ONLY)
-# ===================================================
+
 def create_excel(df):
 
     output = BytesIO()
@@ -218,9 +215,8 @@ def create_excel(df):
     return output
 
 
-# ===================================================
 # STREAMLIT APP
-# ===================================================
+
 def run():
 
     st.title("📄 XML → CANDATA UPLOAD FILE")
@@ -233,7 +229,7 @@ def run():
     )
 
     mapping_file = st.file_uploader(
-        "Upload Buyer Mapping Excel",
+        "Upload Seller Mapping Excel",
         type=["xlsx", "xls"],
         key="mapping_file"
     )
@@ -241,9 +237,8 @@ def run():
     if not uploaded_files:
         return
 
-    # ===================================================
     # LOAD MAPPING FILE
-    # ===================================================
+
     mapping_dict = {}
 
     if mapping_file is not None:
@@ -256,9 +251,9 @@ def run():
 
             for _, row in mapping_df.iterrows():
 
-                account_name = " ".join(str(row.get("Account Name", "")).strip().lower().split())
+                seller_name = " ".join(str(row.get("Seller Name", "")).strip().lower().split())
 
-                mapping_dict[account_name] = {
+                mapping_dict[seller_name] = {
                     "importer_number": str(
                         row.get("Importer Number", "")
                     ).strip(),
@@ -269,7 +264,7 @@ def run():
                 }
 
             st.success(
-                f"Loaded {len(mapping_dict)} buyer mappings"
+                f"Loaded {len(mapping_dict)} Seller mappings"
             )
 
         except Exception as e:
@@ -326,13 +321,13 @@ def run():
     st.download_button(
         label="⬇ Download Canada Upload File",
         data=excel_data,
-        file_name="AMAZON_B2B_CANDATA_UPLOAD_TEMPLATE.xlsx",
+        file_name=f"AMAZON_B2B_CANDATA_UPLOAD_TEMPLATE_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 
-# ===================================================
+
 # ENTRY
-# ===================================================
+
 if __name__ == "__main__":
     run()
