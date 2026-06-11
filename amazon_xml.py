@@ -233,7 +233,7 @@ def run():
     )
 
     mapping_file = st.file_uploader(
-        "Upload Buyer Mapping Excel",
+        "Upload Seller Mapping Excel",
         type=["xlsx", "xls"],
         key="mapping_file"
     )
@@ -269,7 +269,7 @@ def run():
                 }
 
             st.success(
-                f"Loaded {len(mapping_dict)} buyer mappings"
+                f"Loaded {len(mapping_dict)} seller mappings"
             )
 
         except Exception as e:
