@@ -127,7 +127,7 @@ def build_row(header, item, mapping_dict):
 
         # ---------------- BUYER (RECEIVER) ----------------
         "Buyer_code": "",
-        "Buyer_name": seller.get("name", ""),
+        "Buyer_name": receiver.get("name", ""),
         "Buyer_address": receiver.get("addressLine1", ""),
         "Buyer_city": receiver.get("city", ""),
         "Buyer_postal_code": receiver.get("zip", ""),
