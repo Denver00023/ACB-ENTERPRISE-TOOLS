@@ -88,15 +88,9 @@ def build_row(header, item, mapping_dict):
     {}
     )
 
-    importer_number = lookup.get(
-        "importer_number",
-        ""
-    )
+    importer_number = lookup.get("importer_number","")
 
-    importer_party_id = lookup.get(
-        "BroderEze Account",
-        ""
-    )
+    importer_party_id = lookup.get("broder_eze_account")
 
     return {
         # ---------------- HEADER INFO ----------------
@@ -254,13 +248,10 @@ def run():
                 seller_name = " ".join(str(row.get("Seller Name", "")).strip().lower().split())
 
                 mapping_dict[seller_name] = {
-                    "importer_number": str(
-                        row.get("Importer Number", "")
-                    ).strip(),
+                    
+                    "importer_number": str(row.get("Importer Number", "")).strip(),
 
-                    "BroderEze Account": str(
-                        row.get("BroderEze Account", "")
-                    ).strip()
+                    "broder_eze_account": str(row.get("BroderEze Account", "")).strip()
                 }
 
             st.success(
