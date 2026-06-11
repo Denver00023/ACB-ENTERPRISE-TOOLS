@@ -83,11 +83,11 @@ def build_row(header, item, mapping_dict):
     shipper = header.get("shipper", {})
     biller = header.get("biller", {})
 
-    buyer_name = receiver.get("name", "").strip()
+    seller_name = seller.get("name", "").strip()
 
     lookup = mapping_dict.get(
-        buyer_name.lower(),
-        {}
+    " ".join(seller_name.lower().split()),
+    {}
     )
 
     importer_number = lookup.get(
@@ -183,9 +183,9 @@ def build_row(header, item, mapping_dict):
 
         "AutoCalc_Provincial_Rate": "C",
         "CBSA_Port_of_Release": "0453",
-        "CBSA_Warehouse_Sub_Location_Code": "",
-        "Port_of_Discharge": "",
-        "Port_of_Discharge_Sublocation Code": "",
+        "CBSA_Warehouse_Sub_Location_Code": "9453",
+        "Port_of_Discharge": "0453",
+        "Port_of_Discharge_Sublocation Code": "9453",
         "IID_Y/N": "Y",
         "PGA Flag": "CFIA",
         "Category": "HVS",
@@ -256,9 +256,7 @@ def run():
 
             for _, row in mapping_df.iterrows():
 
-                account_name = str(
-                    row.get("Account Name", "")
-                ).strip().lower()
+                account_name = " ".join(str(row.get("Account Name", "")).strip().lower().split())
 
                 mapping_dict[account_name] = {
                     "importer_number": str(
@@ -311,6 +309,15 @@ def run():
         return
 
     df = pd.DataFrame(all_rows)
+
+    df['Unit_price'] = pd.to_numeric(df['Unit_price'], errors='coerce').fillna(0)
+    df['Quantity'] = pd.to_numeric(df['Quantity'], errors='coerce').fillna(0)
+
+    df['Total_value_of_item'] = (df['Unit_price'] * df['Quantity']).round(2)
+
+    df['Total_value_of_parcel'] = df.groupby(
+    'Reliable_tracking'
+    )['Total_value_of_item'].transform('sum').round(2)
 
     st.dataframe(df, use_container_width=True)
 
