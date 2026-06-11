@@ -4,9 +4,9 @@ import xml.etree.ElementTree as ET
 from io import BytesIO
 
 
-
+# ===================================================
 # XML HEADER EXTRACTOR
-
+# ===================================================
 def extract_header(root):
 
     header = root.find("manifestHeader")
@@ -37,9 +37,9 @@ def extract_header(root):
     return data
 
 
-
+# ===================================================
 # ITEM EXTRACTOR
-
+# ===================================================
 def extract_items(root):
 
     items = []
@@ -73,15 +73,32 @@ def extract_items(root):
     return items
 
 
-
+# ===================================================
 # BUILD CANADA ROW
-
-def build_row(header, item):
+# ===================================================
+def build_row(header, item, mapping_dict):
 
     seller = header.get("seller", {})
     receiver = header.get("receiver", {})
     shipper = header.get("shipper", {})
     biller = header.get("biller", {})
+
+    buyer_name = receiver.get("name", "").strip()
+
+    lookup = mapping_dict.get(
+        buyer_name.lower(),
+        {}
+    )
+
+    importer_number = lookup.get(
+        "importer_number",
+        ""
+    )
+
+    importer_party_id = lookup.get(
+        "token_id",
+        ""
+    )
 
     return {
         # ---------------- HEADER INFO ----------------
@@ -126,7 +143,7 @@ def build_row(header, item):
 
         # ---------------- PACKAGE / ITEM ----------------
         "Parcel_item_weight": item.get("weight", ""),
-        
+
         "Parcel_item_weight_UOM": (
             "LBR" if item.get("weight_uom", "").upper() == "LB"
             else "KGM" if item.get("weight_uom", "").upper() == "KG"
@@ -150,7 +167,7 @@ def build_row(header, item):
 
         "UNDG": "",
 
-        "Total_value_of_item": "",
+        "Total_value_of_item": item.get("total_value", ""),
         "Total_value_of_parcel": "",
 
         # ---------------- CUSTOMS ----------------
@@ -161,13 +178,8 @@ def build_row(header, item):
         # ---------------- OTHERS ----------------
         "Url": "",
 
-        "Importer_number": (
-            "789682689RM0002"
-            if header.get("importerType", "").upper() == "AIOR"
-            else ""
-        ),
-
-        "Importer_party_id": "",
+        "Importer_number": importer_number,
+        "Importer_party_id": importer_party_id,
 
         "AutoCalc_Provincial_Rate": "C",
         "CBSA_Port_of_Release": "0453",
@@ -186,9 +198,9 @@ def build_row(header, item):
     }
 
 
-
+# ===================================================
 # CREATE EXCEL (ONE SHEET ONLY)
-
+# ===================================================
 def create_excel(df):
 
     output = BytesIO()
@@ -206,9 +218,9 @@ def create_excel(df):
     return output
 
 
-
+# ===================================================
 # STREAMLIT APP
-
+# ===================================================
 def run():
 
     st.title("📄 XML → CANDATA UPLOAD FILE")
@@ -220,11 +232,53 @@ def run():
         accept_multiple_files=True
     )
 
-    st.markdown("---")
-    st.caption("© 2026 ACB Toolkit | Developed by IT Department")
+    mapping_file = st.file_uploader(
+        "Upload Buyer Mapping Excel",
+        type=["xlsx", "xls"],
+        key="mapping_file"
+    )
 
     if not uploaded_files:
         return
+
+    # ===================================================
+    # LOAD MAPPING FILE
+    # ===================================================
+    mapping_dict = {}
+
+    if mapping_file is not None:
+
+        try:
+
+            mapping_df = pd.read_excel(mapping_file)
+
+            mapping_df.columns = mapping_df.columns.str.strip()
+
+            for _, row in mapping_df.iterrows():
+
+                account_name = str(
+                    row.get("Account Name", "")
+                ).strip().lower()
+
+                mapping_dict[account_name] = {
+                    "importer_number": str(
+                        row.get("Importer Number", "")
+                    ).strip(),
+
+                    "token_id": str(
+                        row.get("Token ID", "")
+                    ).strip()
+                }
+
+            st.success(
+                f"Loaded {len(mapping_dict)} buyer mappings"
+            )
+
+        except Exception as e:
+            st.error(
+                f"Error reading mapping file: {str(e)}"
+            )
+            return
 
     all_rows = []
 
@@ -239,7 +293,13 @@ def run():
             items = extract_items(root)
 
             for item in items:
-                all_rows.append(build_row(header, item))
+                all_rows.append(
+                    build_row(
+                        header,
+                        item,
+                        mapping_dict
+                    )
+                )
 
             st.success(f"Processed: {uploaded_file.name}")
 
@@ -252,22 +312,6 @@ def run():
 
     df = pd.DataFrame(all_rows)
 
-    # Ensure numeric conversion
-    df['Unit_price'] = pd.to_numeric(df['Unit_price'], errors='coerce').fillna(0)
-    df['Quantity'] = pd.to_numeric(df['Quantity'], errors='coerce').fillna(0)
-
-    # 1. COMPUTE ITEM TOTAL
-    df['Total_value_of_item'] = df['Unit_price'] * df['Quantity']
-
-    # 2. COMPUTE PARCEL TOTAL (GROUP BY RELIABLE_TRACKING)
-    df['Total_value_of_parcel'] = df.groupby(
-        'Reliable_tracking'
-    )['Total_value_of_item'].transform('sum')
-
-    # FORMAT TO 2 DECIMALS
-    df['Total_value_of_item'] = df['Total_value_of_item'].round(2)
-    df['Total_value_of_parcel'] = df['Total_value_of_parcel'].round(2)
-
     st.dataframe(df, use_container_width=True)
 
     excel_data = create_excel(df)
@@ -279,7 +323,9 @@ def run():
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
-# ENTRY
 
+# ===================================================
+# ENTRY
+# ===================================================
 if __name__ == "__main__":
     run()
