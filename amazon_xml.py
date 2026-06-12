@@ -212,8 +212,6 @@ def run():
     st.title("📄 XML → CANDATA UPLOAD FILE")
     st.caption("Amazon XML to CANDATA UPLOAD FILE")
 
-    st.caption("Note: Please update your Seller Mapping Excel file using the latest online template before uploading. Seller mapping is based on normalized seller names; minor variations may be accepted, but significant differences may cause mapping failures. Please also ensure accurate data entry. CANDATA is strict about formatting, including spaces, special characters (e.g., commas and periods), and spelling. Careful attention to these details will help prevent errors and ensure smoother processing..")
-
     col1, col2 = st.columns(2)
 
     with col1:
@@ -228,6 +226,8 @@ def run():
             type=["xlsx", "xls"],
             key="mapping_file"
         )
+
+    st.caption("Note: Please update your Seller Mapping Excel file using the latest online template before uploading. Seller mapping is based on normalized seller names; minor variations may be accepted, but significant differences may cause mapping failures. Please also ensure accurate data entry. CANDATA is strict about formatting, including spaces, special characters (e.g., commas and periods), and spelling. Careful attention to these details will help prevent errors and ensure smoother processing..")
 
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
