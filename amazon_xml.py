@@ -281,7 +281,28 @@ def run():
     
     df = pd.DataFrame(all_rows)
 
-    
+    unique_tracking_count = df["Reliable_tracking"].nunique()
+
+    duplicate_tracking_count = (
+        df["Reliable_tracking"]
+        .duplicated(keep=False)
+        .sum()
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric(
+            "**Duplicate Reliable Tracking Rows**",
+            f"{duplicate_tracking_count:,}"
+        )
+        
+    with col2:
+        st.metric(
+            "**Unique Reliable Tracking**",
+            f"{unique_tracking_count:,}"
+        )
+        
     df = df.sort_values(by="Reliable_tracking", ascending=True)
 
     df['Unit_price'] = pd.to_numeric(df['Unit_price'], errors='coerce').fillna(0)
