@@ -75,32 +75,14 @@ def build_row(header, item, mapping_dict):
     shipper = header.get("shipper", {})
     biller = header.get("biller", {})
     
-    # 1. KEEP ORIGINAL XML NAME (for output)
     original_seller_name = seller.get("name", "")
-    
-    # 2. NORMALIZED KEY (for lookup only)
     seller_key = normalize_name(original_seller_name)
-    
-    # 3. LOOKUP USING NORMALIZED KEY
-    lookup = mapping_dict.get(
-    seller_key,
-    {}
-    )
-    
-    mapped_seller_name = lookup.get(
-        "Account Name",
-        " ".join(seller.get("name", "").split())
-    )
-    
-    importer_number = lookup.get(
-        "importer_number",
-        ""
-    )
-    
-    importer_party_id = lookup.get(
-        "BroderEze Account",
-        ""
-    )
+
+    lookup = mapping_dict.get(seller_key, {})
+
+    importer_number = lookup.get("importer_number", "")
+    importer_party_id = lookup.get("BroderEze Account", "")
+
     return {
         
         # ---------------- HEADER INFO ----------------
@@ -176,11 +158,14 @@ def build_row(header, item, mapping_dict):
         "Url": "",
         "Importer_number": importer_number,
         "Importer_party_id": importer_party_id,
+        
+        # ✅ DEFAULT VALUES (WILL BE OVERWRITTEN IF INPUT PROVIDED)
         "AutoCalc_Provincial_Rate": "C",
-        "CBSA_Port_of_Release": "0453",
-        "CBSA_Warehouse_Sub_Location_Code": "9453",
-        "Port_of_Discharge": "0453",
-        "Port_of_Discharge_Sublocation Code": "9453",
+        "CBSA_Port_of_Release": st.session_state.get("cbsa_port", "0453"),
+        "CBSA_Warehouse_Sub_Location_Code": st.session_state.get("cbsa_wh", "9453"),
+        "Port_of_Discharge": st.session_state.get("cbsa_discharge", "0453"),
+        "Port_of_Discharge_Sublocation Code": st.session_state.get("cbsa_subloc", "9453"),
+        
         "IID_Y/N": "Y",
         "PGA Flag": "CFIA",
         "Category": "HVS",
@@ -192,7 +177,7 @@ def build_row(header, item, mapping_dict):
         "External Reference 2": header.get("PONumber", "")
     }
 
-# CREATE EXCEL (ONE SHEET ONLY)
+# CREATE EXCEL
 def create_excel(df):
 
     output = BytesIO()
@@ -200,16 +185,18 @@ def create_excel(df):
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         df.to_excel(writer, sheet_name="CANDATA_AMAZON_B2B", index=False)
         worksheet = writer.sheets["CANDATA_AMAZON_B2B"]
+
         for i, col in enumerate(df.columns):
             max_len = max(df[col].astype(str).map(len).max(), len(col))
             worksheet.set_column(i, i, max_len + 5)
+
     output.seek(0)
     return output
 
 # STREAMLIT APP
 def run():
 
-    st.title("📄 XML → CANDATA UPLOAD FILE")
+    st.subheader("📄 XML → CANDATA UPLOAD FILE")
     st.caption("Amazon XML to CANDATA UPLOAD FILE")
 
     col1, col2 = st.columns(2)
@@ -220,99 +207,119 @@ def run():
             type=["xml"],
             accept_multiple_files=True
         )
+
     with col2:
         mapping_file = st.file_uploader(
             "Upload Seller Mapping Excel",
-            type=["xlsx", "xls"],
-            key="mapping_file"
+            type=["xlsx", "xls"]
         )
-
+    
     st.caption("Note: Please update your Seller Mapping Excel file using the latest online template before uploading. Seller mapping is based on normalized seller names; minor variations may be accepted, but significant differences may cause mapping failures. Please also ensure accurate data entry. CANDATA is strict about formatting, including spaces, special characters (e.g., commas and periods), and spelling. Careful attention to these details will help prevent errors and ensure smoother processing..")
+
+    st.markdown("---")
+
+    # 🔥 NEW INPUT BOXES
+
+    st.subheader("⚙️ CBSA Overwrite Defaults")
+    st.caption("Optionally overwrite default CBSA values for Port of Release, Warehouse Sub Location Code, Port of Discharge, and Port of Discharge Sublocation Code. If left blank, defaults will be used in the output file.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.session_state.cbsa_port = st.text_input("CBSA Port of Release", "0440")
+        st.session_state.cbsa_wh = st.text_input("CBSA Warehouse Sub Location Code", "9453")
+    with col2:
+        st.session_state.cbsa_discharge = st.text_input("Port of Discharge", "0453")
+        st.session_state.cbsa_subloc = st.text_input("Port of Discharge Sublocation Code", "9453")
 
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
 
     if not uploaded_files:
         return
-    
-    # LOAD MAPPING FILE
 
+    # LOAD MAPPING
     mapping_dict = {}
 
     if mapping_file is not None:
+        mapping_df = pd.read_excel(mapping_file)
+        mapping_df.columns = mapping_df.columns.str.strip()
 
-        try:
-            mapping_df = pd.read_excel(mapping_file)
-            mapping_df.columns = mapping_df.columns.str.strip()
+        for _, row in mapping_df.iterrows():
+            account_name = normalize_name(row.get("Account Name", ""))
+            mapping_dict[account_name] = {
+                "importer_number": str(row.get("Importer Number", "")).strip(),
+                "BroderEze Account": str(row.get("BroderEze Account", "")).strip()
+            }
+            
 
-            for _, row in mapping_df.iterrows():
-                account_name = normalize_name(row.get("Account Name", ""))
-                mapping_dict[account_name] = {
-
-                    "Account Name": str(
-                        row.get("Account Name", "")
-                    ).strip(),
-
-                    "importer_number": str(
-                        row.get("Importer Number", "")
-                    ).strip(),
-
-                    "BroderEze Account": str(
-                        row.get("BroderEze Account", "")
-                    ).strip()
-                }
-
-            st.success(
-                f"Loaded {len(mapping_dict)} seller mappings"
-            )
-
-        except Exception as e:
-            st.error(
-                f"Error reading mapping file: {str(e)}"
-            )
-            return
-        
     all_rows = []
-
+    
+    
     with st.status("Processing files...", expanded=False) as status:
         for uploaded_file in uploaded_files:
             try:
                 tree = ET.parse(uploaded_file)
                 root = tree.getroot()
+
                 header = extract_header(root)
                 items = extract_items(root)
+
                 for item in items:
                     all_rows.append(
                         build_row(header, item, mapping_dict)
                     )
+
                 status.write(f"Completed: {uploaded_file.name}")
+
             except Exception as e:
                 status.write(f"Error: {uploaded_file.name} → {str(e)}")
 
-    status.update(label="Processing complete", state="complete")
+    status.write(f"✅ **Total Loaded {len(mapping_dict)} Seller Mapping.**")
 
-    if not all_rows:
-        st.warning("No data extracted")
-        return
+    status.update(label="Processing complete", state="complete")
     
+
     df = pd.DataFrame(all_rows)
 
-    # SORT BY RELIABLE_TRACKING (CCN)
+    unique_tracking_count = df["Reliable_tracking"].nunique()
+
+    duplicate_tracking_count = (
+        df["Reliable_tracking"]
+        .duplicated(keep=False)
+        .sum()
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric(
+            "**Duplicate Reliable Tracking Rows**",
+            f"{duplicate_tracking_count:,}"
+        )
+        
+    with col2:
+        st.metric(
+            "**Unique Reliable Tracking**",
+            f"{unique_tracking_count:,}"
+        )
+        
     df = df.sort_values(by="Reliable_tracking", ascending=True)
 
-    # 🔥 CALCULATIONS FIRST
     df['Unit_price'] = pd.to_numeric(df['Unit_price'], errors='coerce').fillna(0)
     df['Quantity'] = pd.to_numeric(df['Quantity'], errors='coerce').fillna(0)
+
     df['Total_value_of_item'] = (df['Unit_price'] * df['Quantity']).round(2)
+
     df['Total_value_of_parcel'] = df.groupby('Reliable_tracking')['Total_value_of_item'].transform('sum').round(2)
 
     st.dataframe(df, use_container_width=True)
 
     excel_data = create_excel(df)
+
     st.download_button(
         label="⬇ Download Canada Upload File",
         data=excel_data,
-        file_name=f"AMAZON_B2B_CANDATA_UPLOAD_TEMPLATE_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
+        file_name=f"AMAZON_B2B_CANDATA_UPLOAD_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
