@@ -224,9 +224,11 @@ def run():
     st.caption("Optionally overwrite default CBSA values for Port of Release, Warehouse Sub Location Code, Port of Discharge, and Port of Discharge Sublocation Code. If left blank, defaults will be used in the output file.")
 
     col1, col2 = st.columns(2)
+
     with col1:
         st.session_state.cbsa_port = st.text_input("CBSA Port of Release", "0440")
         st.session_state.cbsa_wh = st.text_input("CBSA Warehouse Sub Location Code", "9453")
+
     with col2:
         st.session_state.cbsa_discharge = st.text_input("Port of Discharge", "0453")
         st.session_state.cbsa_subloc = st.text_input("Port of Discharge Sublocation Code", "9453")
@@ -254,7 +256,6 @@ def run():
 
     all_rows = []
     
-    
     with st.status("Processing files...", expanded=False) as status:
         for uploaded_file in uploaded_files:
             try:
@@ -278,31 +279,9 @@ def run():
 
     status.update(label="Processing complete", state="complete")
     
-
     df = pd.DataFrame(all_rows)
 
-    unique_tracking_count = df["Reliable_tracking"].nunique()
-
-    duplicate_tracking_count = (
-        df["Reliable_tracking"]
-        .duplicated(keep=False)
-        .sum()
-    )
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.metric(
-            "**Duplicate Reliable Tracking Rows**",
-            f"{duplicate_tracking_count:,}"
-        )
-        
-    with col2:
-        st.metric(
-            "**Unique Reliable Tracking**",
-            f"{unique_tracking_count:,}"
-        )
-        
+    
     df = df.sort_values(by="Reliable_tracking", ascending=True)
 
     df['Unit_price'] = pd.to_numeric(df['Unit_price'], errors='coerce').fillna(0)
