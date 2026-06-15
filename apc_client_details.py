@@ -8,9 +8,9 @@ def run():
     st.title("📦 APC CLIENT DETAILS")
     st.caption("CANDATA + CLIENT = CLIENT DETAILS TEMPLATE")
 
-    # =========================
+
     # FINAL STRUCTURE
-    # =========================
+
     FINAL_COLUMNS = [
         "Transaction Number",
         "Product Description",
@@ -46,9 +46,9 @@ def run():
         "Exchange Rate"
     ]
 
-    # =========================
+
     # UPLOADS
-    # =========================
+
     col1, col2 = st.columns(2)
 
     with col1:
@@ -64,9 +64,9 @@ def run():
             return pd.read_csv(file)
         return pd.read_excel(file)
 
-    # =========================
+
     # PROCESS
-    # =========================
+
     if st.button("🚀 Process Files"):
 
         if not candata_file or not client_file:
@@ -75,9 +75,9 @@ def run():
 
         try:
 
-            # =========================
+            
             # LOAD DATA
-            # =========================
+            
             candata_df = load_file(candata_file).fillna("")
             client_df = load_file(client_file).fillna("")
 
@@ -99,9 +99,9 @@ def run():
             if "Classification" in candata_df.columns:
                 candata_df["Classification"] = fix_hs_code(candata_df["Classification"])
 
-            # =========================
-            # CANDATA MAPPING (UNCHANGED)
-            # =========================
+            
+            # CANDATA MAPPING
+            
             candata_map = {
                 "Transaction Number": "Transaction Number",
                 "Product Description": "Product Description",
@@ -134,18 +134,18 @@ def run():
                 "HST Rate": "HST Rate"
             }
 
-            # =========================
+
             # BUILD CANDATA OUTPUT
-            # =========================
+
             candata_out = pd.DataFrame()
 
             for src, tgt in candata_map.items():
                 if src in candata_df.columns:
                     candata_out[tgt] = candata_df[src]
 
-            # =========================
+
             # CLIENT ENRICHMENT
-            # =========================
+
             client_lookup = client_df[
                 [
                     "Reliable_tracking",
@@ -162,9 +162,9 @@ def run():
                 how="left"
             )
 
-            # =========================
+
             # APPLY CLIENT RULES
-            # =========================
+
 
             candata_out["APC Number"] = candata_out["Order_number"].fillna(
                 candata_out.get("APC Number", "")
@@ -180,18 +180,18 @@ def run():
                 errors="ignore"
             )
 
-            # =========================
+
             # FINAL STRUCTURE
-            # =========================
+
             for col in FINAL_COLUMNS:
                 if col not in candata_out.columns:
                     candata_out[col] = ""
 
             candata_out = candata_out[FINAL_COLUMNS]
 
-            # =========================
+
             # OUTPUT
-            # =========================
+
             st.success("Processing Complete")
             st.dataframe(candata_out, use_container_width=True, height=450)
 

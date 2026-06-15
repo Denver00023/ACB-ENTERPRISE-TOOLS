@@ -408,7 +408,7 @@ def run():
     st.download_button(
         "⬇ Download GETS File",
         excel,
-        file_name="AMAZON_B2B_GETS_UPLOAD_FILE.xlsx",
+        file_name=f"AMAZON_B2B_GETS_UPLOAD_FILE_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 

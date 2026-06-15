@@ -111,14 +111,9 @@ div[data-testid="column"] {
 st.sidebar.title("☰ MENU")
 
 st.sidebar.caption("NAVIGATION")
+
 if st.sidebar.button("🚚 APC SFTP"):
     st.session_state.module = "APC"
-
-if st.sidebar.button("💱 USD ↔️ CAD FX RATES"):
-    st.session_state.module = "BANKOFCANADA"
-
-if st.sidebar.button("📄 SPLIT PDF BATCHER"):
-    st.session_state.module = "SPLITPDF"
 
 if st.sidebar.button("🗃️ CANDATA UPLOAD FILE"):
     st.session_state.module = "CANDATA"
@@ -132,14 +127,20 @@ if st.sidebar.button("🛒 AMAZON B2B XML TO GETS UPLOAD FILE"):
 if st.sidebar.button("💳 APC BILLING DETAIL REPORT"):
     st.session_state.module = "APC_BILLING"
 
-if st.sidebar.button("💳 APC CLIENT DETAILS"):
-    st.session_state.module = "APC_CLIENT_DETAILS"
-
 if st.sidebar.button("💳 APC BILLING HEADER REPORT"):
     st.session_state.module = "APC_BILLING_HEADER_REPORT"
 
+if st.sidebar.button("💳 APC CLIENT DETAILS"):
+    st.session_state.module = "APC_CLIENT_DETAILS"
+
 if st.sidebar.button("📦🔄 ACI JSON SHIPMENT CONVERTER"):
     st.session_state.module = "JSON"
+
+if st.sidebar.button("💱 USD ↔️ CAD FX RATES"):
+    st.session_state.module = "BANKOFCANADA"
+
+if st.sidebar.button("📄 SPLIT PDF BATCHER"):
+    st.session_state.module = "SPLITPDF"
 
 # -------ROUTING ENGINE--------
 if st.session_state.module == "HOME":
@@ -175,11 +176,11 @@ elif st.session_state.module == "AMAZON_XML":
 elif st.session_state.module == "APC_BILLING":
     output = apc_billing.run()
 
-elif st.session_state.module == "APC_CLIENT_DETAILS":
-    output = apc_client_details.run()
-
 elif st.session_state.module == "APC_BILLING_HEADER_REPORT":
     output = apc_billing_header_report.run()
+
+elif st.session_state.module == "APC_CLIENT_DETAILS":
+    output = apc_client_details.run()
 
 elif st.session_state.module == "JSON":
     aci_json.run()
