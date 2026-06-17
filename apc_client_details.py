@@ -7,7 +7,7 @@ def run():
 
     st.set_page_config(page_title="APC CLIENT DETAILS", page_icon="assets/qwe1.ico")
 
-    st.title("📦 APC CLIENT DETAILS")
+    st.subheader("📦 APC CLIENT DETAILS")
     st.caption("CANDATA + CLIENT = CLIENT DETAILS TEMPLATE")
 
 

@@ -122,7 +122,7 @@ if st.sidebar.button("🗃️ CANDATA UPLOAD FILE"):
 if st.sidebar.button("🛒 AMAZON B2B XML TO CANDATA UPLOAD FILE"):
     st.session_state.module = "AMAZON_XML"
 
-if st.sidebar.button("📦🔄 ACI JSON AMAZON XML TO JSON"):
+if st.sidebar.button("📦 AMAZON CANDATA TO JSON"):
     st.session_state.module = "AMAZON_ACI_JSON"
 
 if st.sidebar.button("🛒 AMAZON B2B XML TO GETS UPLOAD FILE"):
@@ -187,7 +187,7 @@ elif st.session_state.module == "AMAZON_XML":
     amazon_xml.run()
 
 elif st.session_state.module == "":
-    output = amazon_aci_json.run()
+    amazon_aci_json.run()
 
 elif st.session_state.module == "JSON":
     aci_json.run()

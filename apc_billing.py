@@ -7,8 +7,8 @@ def run():
 
     # HEADER
     st.set_page_config(page_title="APC BILLING DETAIL REPORT", page_icon="assets/qwe1.ico")
-    
-    st.title("📦 APC BILLING DETAIL REPORT")
+
+    st.subheader("📦 APC BILLING DETAIL REPORT")
 
     st.caption("CANDATA REPORT + SFTP = DETAIL REPORT TEMPLATE")
 
