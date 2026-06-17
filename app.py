@@ -186,7 +186,7 @@ elif st.session_state.module == "APC_CLIENT_DETAILS":
 elif st.session_state.module == "AMAZON_XML":
     amazon_xml.run()
 
-elif st.session_state.module == "":
+elif st.session_state.module == "AMAZON_ACI_JSON":
     amazon_aci_json.run()
 
 elif st.session_state.module == "JSON":
