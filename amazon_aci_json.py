@@ -23,7 +23,7 @@ def clean_description(text):
 
 def run():
 
-    st.set_page_config(page_title="JSON", page_icon="📦")
+    st.set_page_config(page_title="AMAZON B2B CANDATA → JSON Converter", page_icon="assets/qwe1.ico")
     st.subheader("📦 AMAZON B2B CANDATA → JSON Converter")
 
     STATE_MAP = {
