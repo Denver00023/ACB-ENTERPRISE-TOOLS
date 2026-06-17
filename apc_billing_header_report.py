@@ -5,6 +5,8 @@ import io
 
 def run():
 
+    st.set_page_config(page_title="APC BILLING HEADER REPORT", page_icon="assets/qwe1.ico")
+
     st.title("📦 APC BILLING HEADER REPORT")
     st.caption("CANDATA REPORT + SFTP = HEADER REPORT TEMPLATE")
 

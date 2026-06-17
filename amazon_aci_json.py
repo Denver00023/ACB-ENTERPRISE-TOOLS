@@ -1,11 +1,30 @@
 import streamlit as st
 import pandas as pd
 import json
+import re
+
+
+def clean_description(text):
+    if pd.isna(text):
+        return ""
+
+    text = str(text)
+
+    # Remove line breaks and tabs
+    text = text.replace("\n", " ").replace("\r", " ").replace("\t", " ")
+
+    # Remove special characters, keep letters, numbers, spaces, and common punctuation
+    text = re.sub(r"[^A-Za-z0-9\s\-\.,/&()]", "", text)
+
+    # Remove extra spaces
+    text = re.sub(r"\s+", " ", text).strip()
+
+    return text
 
 def run():
-
-    st.set_page_config(page_title="Shipment Excel → JSON Converter", page_icon="assets/qwe1.ico")
-    st.subheader("📦 Shipment Excel → JSON Converter")
+    
+    st.set_page_config(page_title="AMAZON B2B CANDATA → JSON Converter", page_icon="assets/qwe1.ico")
+    st.subheader("📦 AMAZON B2B CANDATA → JSON Converter")
 
     STATE_MAP = {
         "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
@@ -35,6 +54,13 @@ def run():
 
     uploaded_file = st.file_uploader("Upload Excel or CSV File", type=["xlsx", "xls", "csv"])
 
+    arrival_datetime = st.text_input(
+    "Estimated Arrival Date/Time (YY-MM-DD HH:MM:SS)",
+    value="2026-00-00 00:00:00"
+    )
+
+    st.caption("Note: Please ensure the you already have the correct Estimated Arrival Date/Time before converting to JSON.")
+
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
 
@@ -58,8 +84,8 @@ def run():
     # ---------------- CLEAN + MAP STATES ----------------
     for idx, row in df.iterrows():
 
-        shipper_state = str(row.get("Shipper State", "")).strip().upper()
-        consignee_state = str(row.get("Consignee Prov", "")).strip().upper()
+        shipper_state = str(row.get("Seller_state", "")).strip().upper()
+        consignee_state = str(row.get("Buyer_province", "")).strip().upper()
 
         df.at[idx, "Shipper State Name"] = STATE_MAP.get(shipper_state, "")
         df.at[idx, "Consignee Prov Name"] = (
@@ -78,55 +104,58 @@ def run():
 
         for _, row in df.iterrows():
 
-            ccn = str(row.get("Cargo Control Number", "")).strip()
+            carrier_code = str(row.get("Carrier code", "")).strip()
+            reliable_tracking = str(row.get("Reliable_tracking", "")).strip()
+
+            ccn = f"{carrier_code}{reliable_tracking}"
             if not ccn or ccn.lower() == "nan":
                 continue
 
             if ccn not in shipments:
                 shipments[ccn] = {
                     "cargoControlNumber": ccn,
-                    "shipmentType": row.get("Shipment Type", ""),
-                    "portOfEntry": str(row.get("First Port of Arrival", "")).strip().zfill(4),
-                    "releaseOffice": str(row.get("Release Office", "")).strip().zfill(4),
-                    "estimatedArrivalDate": str(row.get("Estimated Arrival Date", "")),
+                    "shipmentType": "PARS",
+                    "portOfEntry": str(row.get("CBSA_Port_of_Release", "")).strip().zfill(4),
+                    "releaseOffice": str(row.get("CBSA_Port_of_Release", "")).strip().zfill(4),
+                    "estimatedArrivalDate": arrival_datetime,
                     "estimatedArrivalTimeZone": "EST",
                     "cityOfLoading": {
-                        "cityName": row.get("Shipper City", ""),
-                        "stateProvince": row.get("Shipper State", "")
+                        "cityName": row.get("Seller_city", ""),
+                        "stateProvince": row.get("Seller_state", "")
                     },
                     "shipper": {
-                        "name": row.get("Shipper Name", ""),
+                        "name": row.get("Seller_name", ""),
                         "address": {
-                            "addressLine": row.get("Shipper Address", ""),
-                            "city": row.get("Shipper City", ""),
-                            "stateProvince": row.get("Shipper State", ""),
+                            "addressLine": row.get("Seller_address", ""),
+                            "city": row.get("Seller_city", ""),
+                            "stateProvince": row.get("Seller_state", ""),
                             "stateProvinceName": row.get("Shipper State Name", ""),
-                            "country": row.get("Country", ""),
-                            "countryName": row.get("Country Name", ""),
-                            "postalCode": str(row.get("Shipper Zipcode", "")).strip().zfill(5)
+                            "country": row.get("Seller_country", ""),
+                            "countryName": "United States",
+                            "postalCode": row.get("Seller_postal_code", "")
                         }
                     },
                     "consignee": {
-                        "name": row.get("Consignee Name", ""),
+                        "name": row.get("Buyer_name", ""),
                         "address": {
-                            "addressLine": row.get("Consignee Address", ""),
-                            "city": row.get("Consignee City", ""),
-                            "stateProvince": row.get("Consignee Prov", ""),
+                            "addressLine": row.get("Buyer_address", ""),
+                            "city": row.get("Buyer_city", ""),
+                            "stateProvince": row.get("Buyer_province", ""),
                             "stateProvinceName": row.get("Consignee Prov Name", ""),
-                            "country": row.get("Consignee County", ""),
-                            "countryName": row.get("Consignee County Name", ""),
-                            "postalCode": str(row.get("Consignee Postal", "")).strip().zfill(5)
+                            "country": row.get("Buyer_country", ""),
+                            "countryName": "Canada",
+                            "postalCode": str(row.get("Buyer_postal_code", "")).strip().zfill(5)
                         }
                     },
                     "commodities": []
                 }
 
             commodity = {
-                "description": row.get("Commodity Desc", ""),
-                "quantity": int(row.get("Commodity Quantity", 0)) if str(row.get("Commodity Quantity", "")).isdigit() else 0,
-                "packagingUnit": row.get("Commodity Quantity Unit", ""),
-                "weight": row.get("Commodity Weight", ""),
-                "weightUnit": row.get("Commodity Weight Unit", "")
+                "description": clean_description(row.get("Goods_Description", "")),
+                "quantity": int(float(row.get("Quantity", 0) or 0)),
+                "packagingUnit": "PCE",
+                "weight": row.get("Parcel_item_weight", ""),
+                "weightUnit": row.get("Parcel_item_weight_UOM", "")
             }
 
             shipments[ccn]["commodities"].append(commodity)
@@ -142,7 +171,7 @@ def run():
         st.subheader("JSON Preview")
         st.code(st.session_state.json_output, language="json")
 
-        output_filename = uploaded_file.name.rsplit(".", 1)[0] + ".json"
+        output_filename = f"{uploaded_file.name.rsplit('.', 1)[0]}_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.json"
 
         st.download_button(
             "📥 Download JSON File",
@@ -151,5 +180,4 @@ def run():
             mime="application/json"
         )
 
-    st.markdown("---")
-    st.caption("© 2026 ACB Toolkit | Shipment Converter Module")
+    

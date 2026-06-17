@@ -17,7 +17,9 @@ def get_rolling_window(days: int):
 
 def run():
 
-    st.title("💱 FX Rate (Bank of Canada)")
+    st.set_page_config(page_title="FX Rate (Bank of Canada)", page_icon="assets/qwe1.ico")
+
+    st.subheader("💱 FX Rate (Bank of Canada)")
     st.caption("Flexible FX Dashboard (Rolling + Custom Range)")
 
     # SERIES

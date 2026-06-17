@@ -354,8 +354,9 @@ def create_excel(df):
 # STREAMLIT APP
 
 def run():
-
-    st.title("📄 XML → GETS Upload Tool")
+    
+    st.set_page_config(page_title="XML → GETS Upload Tool", page_icon="assets/qwe1.ico")
+    st.subheader("📄 XML → GETS Upload Tool")
 
     files = st.file_uploader("Upload XML Files", type=["xml"], accept_multiple_files=True)
 

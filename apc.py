@@ -8,7 +8,7 @@ def run():
 
     # PAGE HEADER
 
-    st.title("📊 APC Excel Processor Tool")
+    st.subheader("📊 APC SFTP Excel Processor Tool")
 
     # FIXED TEMPLATE HEADERS
 
@@ -134,7 +134,6 @@ def run():
         "M,1…256 AN"
     ]
 
-   
 
     # FILE UPLOADS & FILENAME
     col1, col2 = st.columns(2)

@@ -161,10 +161,10 @@ def build_row(header, item, mapping_dict):
         
         # ✅ DEFAULT VALUES (WILL BE OVERWRITTEN IF INPUT PROVIDED)
         "AutoCalc_Provincial_Rate": "C",
-        "CBSA_Port_of_Release": st.session_state.get("cbsa_port", "0453"),
-        "CBSA_Warehouse_Sub_Location_Code": st.session_state.get("cbsa_wh", "9453"),
-        "Port_of_Discharge": st.session_state.get("cbsa_discharge", "0453"),
-        "Port_of_Discharge_Sublocation Code": st.session_state.get("cbsa_subloc", "9453"),
+        "CBSA_Port_of_Release": st.session_state.get("cbsa_port", "0440"),
+        "CBSA_Warehouse_Sub_Location_Code": st.session_state.get("cbsa_wh", ""),
+        "Port_of_Discharge": st.session_state.get("cbsa_discharge", ""),
+        "Port_of_Discharge_Sublocation Code": st.session_state.get("cbsa_subloc", ""),
         
         "IID_Y/N": "Y",
         "PGA Flag": "CFIA",
@@ -195,6 +195,8 @@ def create_excel(df):
 
 # STREAMLIT APP
 def run():
+    
+    st.set_page_config(page_title="XML → CANDATA UPLOAD FILE", page_icon="assets/qwe1.ico")
 
     st.subheader("📄 XML → CANDATA UPLOAD FILE")
     st.caption("Amazon XML to CANDATA UPLOAD FILE")
@@ -227,11 +229,11 @@ def run():
 
     with col1:
         st.session_state.cbsa_port = st.text_input("CBSA Port of Release", "0440")
-        st.session_state.cbsa_wh = st.text_input("CBSA Warehouse Sub Location Code", "9453")
+        st.session_state.cbsa_wh = st.text_input("CBSA Warehouse Sub Location Code", "")
 
     with col2:
-        st.session_state.cbsa_discharge = st.text_input("Port of Discharge", "0453")
-        st.session_state.cbsa_subloc = st.text_input("Port of Discharge Sublocation Code", "9453")
+        st.session_state.cbsa_discharge = st.text_input("Port of Discharge", "")
+        st.session_state.cbsa_subloc = st.text_input("Port of Discharge Sublocation Code", "")
 
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")

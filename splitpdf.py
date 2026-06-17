@@ -4,7 +4,8 @@ import zipfile
 from io import BytesIO
 
 def run():
-    st.markdown("## 📄 PDF Batch Splitter (ZIP Upload Mode)")
+
+    st.subheader("## 📄 PDF Batch Splitter (ZIP Upload Mode)")
 
     uploaded_zip = st.file_uploader(
         "Upload ZIP file containing PDFs",

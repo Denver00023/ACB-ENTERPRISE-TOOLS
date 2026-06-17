@@ -481,7 +481,7 @@ def generate_excel(df):
 
 def run():
 
-    st.title("📊 CANDATA FILE PROCESSOR")
+    st.subheader("📊 CANDATA FILE PROCESSOR")
 
     
     # CLIENT TYPE

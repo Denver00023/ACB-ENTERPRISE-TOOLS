@@ -9,6 +9,7 @@ import aci_json
 import amazon_xml_gets
 import apc_billing_header_report
 import apc_client_details
+import amazon_aci_json
 
 # --------PAGE CONFIG----------
 
@@ -121,6 +122,9 @@ if st.sidebar.button("🗃️ CANDATA UPLOAD FILE"):
 if st.sidebar.button("🛒 AMAZON B2B XML TO CANDATA UPLOAD FILE"):
     st.session_state.module = "AMAZON_XML"
 
+if st.sidebar.button("📦🔄 ACI JSON AMAZON XML TO JSON"):
+    st.session_state.module = "AMAZON_ACI_JSON"
+
 if st.sidebar.button("🛒 AMAZON B2B XML TO GETS UPLOAD FILE"):
     st.session_state.module = "AMAZON_XML_GETS"
 
@@ -170,9 +174,6 @@ elif st.session_state.module == "SPLITPDF":
 elif st.session_state.module == "CANDATA":
     candata.run()
 
-elif st.session_state.module == "AMAZON_XML":
-    amazon_xml.run()
-
 elif st.session_state.module == "APC_BILLING":
     output = apc_billing.run()
 
@@ -181,6 +182,12 @@ elif st.session_state.module == "APC_BILLING_HEADER_REPORT":
 
 elif st.session_state.module == "APC_CLIENT_DETAILS":
     output = apc_client_details.run()
+
+elif st.session_state.module == "AMAZON_XML":
+    amazon_xml.run()
+
+elif st.session_state.module == "":
+    output = amazon_aci_json.run()
 
 elif st.session_state.module == "JSON":
     aci_json.run()
