@@ -59,7 +59,9 @@ def run():
     with col2:
         client_file = st.file_uploader("Upload CLIENT File", type=["xlsx", "csv"])
 
-
+    st.markdown("---")
+    st.caption("© 2026 ACB Toolkit | Developed by IT Department")
+    
     def load_file(file):
         if file.name.endswith(".csv"):
             return pd.read_csv(file)
