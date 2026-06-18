@@ -59,7 +59,6 @@ def run():
     with col2:
         client_file = st.file_uploader("Upload CLIENT File", type=["xlsx", "csv"])
 
-    mawb_input = st.text_input("MAWB #", placeholder="123-45678901")
 
     def load_file(file):
         if file.name.endswith(".csv"):
@@ -205,7 +204,7 @@ def run():
             st.download_button(
                 "📥 Download Excel",
                 data=output.getvalue(),
-                file_name=f"APC_BILLING_DETAIL_REPORT_{mawb_input}_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
+                file_name=f"APC_BILLING_DETAIL_REPORT_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
