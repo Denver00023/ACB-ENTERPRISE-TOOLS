@@ -23,7 +23,7 @@ def clean_description(text):
 
 def run():
 
-    st.set_page_config(page_title="AMAZON B2B CANDATA → JSON Converter", page_icon="assets/qwe1.ico")
+    
     st.subheader("📦 AMAZON B2B CANDATA → JSON Converter")
 
     STATE_MAP = {
@@ -54,9 +54,17 @@ def run():
 
     uploaded_file = st.file_uploader("Upload Excel or CSV File", type=["xlsx", "xls", "csv"])
 
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+
+    # Current EST time + 2 hours
+    est_now = datetime.now(ZoneInfo("Etc/GMT+5")) + timedelta(hours=2)
+
+    default_arrival = est_now.strftime("%Y-%m-%d %H:%M:%S")
+
     arrival_datetime = st.text_input(
     "Estimated Arrival Date/Time (YY-MM-DD HH:MM:SS)",
-    value="2026-00-00 00:00:00"
+    value=default_arrival
     )
 
     st.caption("Note: Please ensure the you already have the correct Estimated Arrival Date/Time before converting to JSON.")

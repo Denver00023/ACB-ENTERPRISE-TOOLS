@@ -76,9 +76,9 @@ def build_row(header, item, mapping_dict):
     biller = header.get("biller", {})
     
     original_seller_name = seller.get("name", "")
-    seller_key = normalize_name(original_seller_name)
+    merchant_id = normalize_name(header.get("merchantId", ""))
 
-    lookup = mapping_dict.get(seller_key, {})
+    lookup = mapping_dict.get(merchant_id, {})
 
     importer_number = lookup.get("importer_number", "")
     importer_party_id = lookup.get("BroderEze Account", "")
@@ -122,7 +122,13 @@ def build_row(header, item, mapping_dict):
         
         # ---------------- ORDER ----------------
         "Order_number": header.get("invoiceTitle", ""),
-        "Reliable_tracking": header.get("CCN", ""),
+        
+        "Reliable_tracking": (
+            str(header.get("CCN", "")).replace("1BML", "", 1)
+            if str(header.get("CCN", "")).startswith("1BML")
+            else header.get("CCN", "")
+        ),
+
         "Client_Internal_tracking": header.get("trackingID", ""),
         
         # ---------------- PACKAGE / ITEM ----------------
@@ -152,7 +158,11 @@ def build_row(header, item, mapping_dict):
         # ---------------- CUSTOMS ----------------
         "HS_code": item.get("hs_code", ""),
         "Goods_Description": item.get("description", ""),
-        "Country_of_origin": item.get("country", ""),
+        "Country_of_origin": (
+            "U" + str(seller.get("stateProvince", "")).strip()[:2].upper()
+            if item.get("country", "").upper() == "US"
+            else item.get("country", "")
+        ),
         
         # ---------------- OTHERS ----------------
         "Url": "",
@@ -195,8 +205,6 @@ def create_excel(df):
 
 # STREAMLIT APP
 def run():
-    
-    st.set_page_config(page_title="XML → CANDATA UPLOAD FILE", page_icon="assets/qwe1.ico")
 
     st.subheader("📄 XML → CANDATA UPLOAD FILE")
     st.caption("Amazon XML to CANDATA UPLOAD FILE")
@@ -212,11 +220,11 @@ def run():
 
     with col2:
         mapping_file = st.file_uploader(
-            "Upload Seller Mapping Excel",
+            "Upload Account Setup Tracker",
             type=["xlsx", "xls"]
         )
     
-    st.caption("Note: Please update your Seller Mapping Excel file using the latest online template before uploading. Seller mapping is based on normalized seller names; minor variations may be accepted, but significant differences may cause mapping failures. Please also ensure accurate data entry. CANDATA is strict about formatting, including spaces, special characters (e.g., commas and periods), and spelling. Careful attention to these details will help prevent errors and ensure smoother processing..")
+    st.caption("Note: Please update your Account Setup Tracker Excel file using the latest online template before uploading. Account Setup Tracker is based on normalized seller names; minor variations may be accepted, but significant differences may cause mapping failures. Please also ensure accurate data entry. CANDATA is strict about formatting, including spaces, special characters (e.g., commas and periods), and spelling. Careful attention to these details will help prevent errors and ensure smoother processing..")
 
     st.markdown("---")
 
@@ -238,9 +246,10 @@ def run():
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
 
+
     if not uploaded_files:
         return
-
+    
     # LOAD MAPPING
     mapping_dict = {}
 
@@ -249,15 +258,16 @@ def run():
         mapping_df.columns = mapping_df.columns.str.strip()
 
         for _, row in mapping_df.iterrows():
-            account_name = normalize_name(row.get("Account Name", ""))
-            mapping_dict[account_name] = {
+            token_id = normalize_name(row.get("Token ID", ""))
+
+            mapping_dict[token_id] = {
                 "importer_number": str(row.get("Importer Number", "")).strip(),
                 "BroderEze Account": str(row.get("BroderEze Account", "")).strip()
             }
-            
 
     all_rows = []
-    
+    missing_mapping_validation = []
+
     with st.status("Processing files...", expanded=False) as status:
         for uploaded_file in uploaded_files:
             try:
@@ -265,6 +275,22 @@ def run():
                 root = tree.getroot()
 
                 header = extract_header(root)
+
+                # Merchant ID Mapping Validation
+                merchant_id = str(header.get("merchantId", "")).strip()
+
+                if merchant_id:
+
+                    normalized_merchant_id = normalize_name(merchant_id)
+
+                    if normalized_merchant_id not in mapping_dict:
+
+                        missing_mapping_validation.append({
+                            "File Name": uploaded_file.name,
+                            "Merchant ID": merchant_id,
+                            "Issue": "Merchant ID not found in Account Setup Mapping file"
+                        })
+
                 items = extract_items(root)
 
                 for item in items:
@@ -277,10 +303,31 @@ def run():
             except Exception as e:
                 status.write(f"Error: {uploaded_file.name} → {str(e)}")
 
-    status.write(f"✅ **Total Loaded {len(mapping_dict)} Seller Mapping.**")
+
+    status.write(f"✅ **Total Loaded {len(mapping_dict)} Account Setup Tracker Mapping.**")
 
     status.update(label="Processing complete", state="complete")
-    
+
+
+    if missing_mapping_validation:
+
+        st.warning(
+            "Validation issues found. These records will still be included in the final output."
+        )
+
+        validation_df = (
+            pd.DataFrame(missing_mapping_validation)
+            .drop_duplicates()
+        )
+
+        st.subheader("Merchant ID Mapping Validation")
+
+        st.dataframe(
+            validation_df,
+            use_container_width=True
+        )
+
+
     df = pd.DataFrame(all_rows)
 
     unique_tracking_count = df["Reliable_tracking"].nunique()

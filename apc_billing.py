@@ -6,7 +6,7 @@ import io
 def run():
 
     # HEADER
-    st.set_page_config(page_title="APC BILLING DETAIL REPORT", page_icon="assets/qwe1.ico")
+    
 
     st.subheader("📦 APC BILLING DETAIL REPORT")
 

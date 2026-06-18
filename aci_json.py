@@ -4,7 +4,7 @@ import json
 
 def run():
 
-    st.set_page_config(page_title="Shipment Excel → JSON Converter", page_icon="assets/qwe1.ico")
+    
     st.subheader("📦 Shipment Excel → JSON Converter")
 
     STATE_MAP = {

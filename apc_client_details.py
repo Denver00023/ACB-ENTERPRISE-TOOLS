@@ -5,7 +5,7 @@ import io
 
 def run():
 
-    st.set_page_config(page_title="APC CLIENT DETAILS", page_icon="assets/qwe1.ico")
+    
 
     st.subheader("📦 APC CLIENT DETAILS")
     st.caption("CANDATA + CLIENT = CLIENT DETAILS TEMPLATE")

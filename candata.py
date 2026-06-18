@@ -4,16 +4,6 @@ import io
 from datetime import datetime
 
 
-
-# PAGE CONFIG
-
-st.set_page_config(
-    page_title="CANDATA FILE PROCESSOR",
-    page_icon="assets/qwe1.ico",
-    layout="wide"
-)
-
-
 # BASE HEADERS
 
 BASE_HEADERS = [
