@@ -121,7 +121,9 @@ CLIENT_CONFIG = {
     "APC": {
 
         "extra_headers": [
-            "TARIFF_TREATMENT_CODE"
+            "TARIFF_TREATMENT_CODE",
+            "External Reference 2",
+            "GST CODE"
         ],
 
         "mapping": {
