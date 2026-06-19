@@ -54,11 +54,11 @@ def run():
 
     uploaded_file = st.file_uploader("Upload Excel or CSV File", type=["xlsx", "xls", "csv"])
 
-    from datetime import datetime, timedelta
+    from datetime import datetime
     from zoneinfo import ZoneInfo
 
     # Current EST time + 2 hours
-    est_now = datetime.now(ZoneInfo("Etc/GMT+5")) + timedelta(hours=2)
+    est_now = datetime.now(ZoneInfo("Etc/GMT+5"))
 
     default_arrival = est_now.strftime("%Y-%m-%d %H:%M:%S")
 
