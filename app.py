@@ -44,14 +44,14 @@ body {
 section[data-testid="stSidebar"] {
     background-color: #385144;
 }
-
+            
 /* SIDEBAR TEXT */
 section[data-testid="stSidebar"] p,
 section[data-testid="stSidebar"] span,
 section[data-testid="stSidebar"] label {
     color: #F8F5F2 !important;
-}              
-/* SIDEBAR TEXT */
+}            
+
 section[data-testid="stSidebar"] * {
     color: #F8F5F2 !important;
 }
@@ -79,6 +79,11 @@ section[data-testid="stSidebar"] * {
 }
 /* =====🎯 FIX BUTTON STYLE (CENTER + SAME SIZE) */
 
+/* MAIN PAGE BUTTONS ONLY */
+.main .stButton > button {
+    width:260px;
+    height:60px;
+}
 .stButton > button {
     width: 260px;               /* SAME WIDTH */
     height: 60px;              /* SAME HEIGHT */
@@ -91,6 +96,7 @@ section[data-testid="stSidebar"] * {
     font-weight: 700;
 
     background: linear-gradient(135deg, #385144, #2D4036, #333c43);
+
     color: white;
 
     border-radius: 18px;
@@ -105,6 +111,11 @@ section[data-testid="stSidebar"] * {
 .stButton > button:hover {
     transform: translateY(-6px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+    background: linear-gradient(
+        135deg,
+        #4b6a60,
+        #5f8377
+    );
 }
 
 /* CENTER BUTTONS IN COLUMN */
@@ -214,7 +225,7 @@ NAV_GROUPS = {
 
     "📦 AMAZON": {
         "📊 AMAZON XML TO CANDATA": "AMAZON XML",
-        "📦 AMAZON ACI JSON": "AMAZON ACI JSON",
+        "📦 AMAZON CANDATA TO JSON": "AMAZON CANDATA TO JSON",
         "📊 AMAZON XML GETS": "AMAZON XML GETS",
     },
     
@@ -296,7 +307,7 @@ for group_name, items in NAV_GROUPS.items():
         "APC BILLING HEADER REPORT": apc_billing_header_report.run,
         "APC CLIENT DETAIL": apc_client_details.run,
         "AMAZON XML": amazon_xml.run,
-        "AMAZON CANDATA TO JSON ": amazon_aci_json.run,
+        "AMAZON CANDATA TO JSON": amazon_aci_json.run,
         "AMAZON XML GETS": amazon_xml_gets.run,
 
     }
