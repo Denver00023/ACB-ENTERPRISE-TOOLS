@@ -11,6 +11,7 @@ import amazon_xml_gets
 import apc_billing_header_report
 import apc_client_details
 import amazon_aci_json
+import ezclear
 
 # --------PAGE CONFIG----------
 
@@ -239,6 +240,7 @@ NAV_GROUPS = {
     "🛠 Utilities": {
         "📑 SPLIT PDF": "SPLIT PDF",
         "💱 USD ↔️ CAD FX RATES": "BANK OF CANADA",
+        "📑 EZCLEAR": "EZCLEAR",
     }
 }
 
@@ -311,6 +313,7 @@ for group_name, items in NAV_GROUPS.items():
         "AMAZON XML": amazon_xml.run,
         "AMAZON CANDATA TO JSON": amazon_aci_json.run,
         "AMAZON XML GETS": amazon_xml_gets.run,
+        "EZCLEAR": ezclear.run,
 
     }
 # -------ROUTING ENGINE--------
