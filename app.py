@@ -207,15 +207,15 @@ NAV_GROUPS = {
 
     "🚚 APC": {
         "🚚 APC sFTP": "APC SFTP",
-        "💳 APC BILLING DETAIL": "APC BILLING",
-        "💳 APC CLIENT DETAILS": "APC CLIENT DETAILS",
-        "💳 APC BILLING HEADER": "APC BILLING HEADER",
+        "💳 APC BILLING DETAIL": "APC BILLING DETAIL",
+        "💳 APC CLIENT DETAILS": "APC CLIENT DETAIL",
+        "💳 APC BILLING HEADER": "APC BILLING HEADER REPORT",
     },
 
     "📦 AMAZON": {
-        "📊 AMAZON XML TO CANDATA": "AMAZON_XML",
-        "📦 AMAZON ACI JSON": "AMAZON_ACI_JSON",
-        "📊 AMAZON XML GETS": "AMAZON_XML_GETS",
+        "📊 AMAZON XML TO CANDATA": "AMAZON XML",
+        "📦 AMAZON ACI JSON": "AMAZON ACI JSON",
+        "📊 AMAZON XML GETS": "AMAZON XML GETS",
     },
     
     "📊 Data Processing": {
@@ -224,8 +224,8 @@ NAV_GROUPS = {
     },
 
     "🛠 Utilities": {
-        "📑 Split PDF": "SPLIT_PDF",
-        "💱 ": "BANK OF CANADA",
+        "📑 SPLIT PDF": "SPLIT PDF",
+        "💱 USD ↔️ CAD FX RATES": "BANK OF CANADA",
     }
 }
 
@@ -292,7 +292,7 @@ for group_name, items in NAV_GROUPS.items():
         "CANDATA": candata.run,
         "SPLIT PDF": splitpdf.run,
         "JSON": aci_json.run,
-        "APC BILLING": apc_billing.run,
+        "APC BILLING DETAIL": apc_billing.run,
         "APC BILLING HEADER REPORT": apc_billing_header_report.run,
         "APC CLIENT DETAIL": apc_client_details.run,
         "AMAZON XML": amazon_xml.run,
