@@ -54,6 +54,8 @@ section[data-testid="stSidebar"] label {
 
 section[data-testid="stSidebar"] * {
     color: #F8F5F2 !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
 }
 
 /* HEADER */
