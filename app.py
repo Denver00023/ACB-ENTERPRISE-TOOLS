@@ -17,7 +17,8 @@ import amazon_aci_json
 st.set_page_config(
     page_title="ACB Enterprise Portal",
     page_icon="assets/qwe1.ico",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 
@@ -26,6 +27,8 @@ st.set_page_config(
 if "module" not in st.session_state:
     st.session_state.module = "HOME"
 
+if "active_group" not in st.session_state:
+    st.session_state.active_group = None
 
 # -------CORPORATE UI STYLE----------------------
 
