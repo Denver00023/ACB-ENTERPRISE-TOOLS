@@ -28,8 +28,6 @@ def run():
         "CCN"
     ]
 
-    
-
     col1, col2 = st.columns(2)
 
     with col1:
@@ -37,12 +35,16 @@ def run():
             "Upload GETS Upload File",
             type=["xlsx", "csv"]
         )
+        client_value = st.text_input("CLIENT", placeholder="Client Name")
+        rpt_name_value = st.text_input("RPT NAME", placeholder="MAWB #")
 
     with col2:
         sftp_file = st.file_uploader(
             "Upload SFTP File",
             type=["xlsx", "csv"]
         )
+        rpt_date_value = st.text_input("RPT DATE", value=pd.Timestamp.now().strftime("%m/%d/%Y"))
+    
     
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
@@ -69,7 +71,6 @@ def run():
                     skiprows=[1] if skip_row else None
                 )
 
-
             gets_df = load_file(gets_file).fillna("")
 
             # SFTP data starts from row 3
@@ -78,10 +79,19 @@ def run():
                 skip_row=True
             ).fillna("")
 
-
             gets_df.columns = gets_df.columns.str.strip()
             sftp_df.columns = sftp_df.columns.str.strip()
 
+            gets_df["CCN_raw"] = gets_df["CCN"].astype(str).str.strip()
+
+            gets_df["CCN_match"] = (
+            gets_df["CCN_raw"]
+            .str.replace(r"^8308\D*", "", regex=True)
+            )
+
+            sftp_df["Reliable_raw"] = sftp_df["Reliable_tracking"].astype(str).str.strip()
+
+            sftp_df["Reliable_match"] = sftp_df["Reliable_raw"]
 
             # Clean tracking numbers
             gets_df["CCN"] = (
@@ -96,19 +106,12 @@ def run():
                 .str.strip()
             )
 
-
             # Remove shipments already existing in GETS
-            existing_ccn = set(
-                gets_df["CCN"]
-            )
-
-            
+            existing_ccn = set(gets_df["CCN_match"])
 
             new_sftp = sftp_df[
-                ~sftp_df["Reliable_tracking"]
-                .isin(existing_ccn)
+                ~sftp_df["Reliable_match"].isin(existing_ccn)
             ].copy()
-
 
             # Create line sequence per Reliable_tracking
             new_sftp["Line #"] = (
@@ -117,7 +120,6 @@ def run():
                 .cumcount()
                 + 1
             )
-
 
             # Map SFTP into ITEM REPORT format
             item_report = pd.DataFrame({
@@ -140,7 +142,7 @@ def run():
                 "Value for Tax":0,
                 "Gov. Sales Tax":0,
                 "Inco Terms":new_sftp["Inco_term"],
-                "CCN":new_sftp["Reliable_tracking"]
+                "CCN":new_sftp["Reliable_raw"]
             })
 
             # Apply default values
@@ -163,7 +165,6 @@ def run():
                 )
             )
 
-
             col1, col2 = st.columns(2)
 
             col1.metric(
@@ -176,7 +177,6 @@ def run():
                 len(item_report)
             )
 
-
             # Combine GETS + new SFTP records
             blank = pd.DataFrame(
                 [{col: "" for col in final_columns}]
@@ -184,6 +184,7 @@ def run():
 
             final_df = pd.concat(
                 [
+                    
                     gets_df[final_columns],
                     blank,
                     item_report
@@ -199,20 +200,31 @@ def run():
                 use_container_width=True
             )
 
-
             # Export Excel
             output = io.BytesIO()
 
-            with pd.ExcelWriter(
-                output,
-                engine="openpyxl"
-            ) as writer:
+            with pd.ExcelWriter(output, engine="openpyxl") as writer:
 
+                # STEP 1: write table lower
                 final_df.to_excel(
                     writer,
                     index=False,
-                    sheet_name="ITEM REPORT"
+                    sheet_name="ITEM REPORT",
+                    startrow=4  # 👈 IMPORTANT: data starts from row 6
                 )
+            
+                worksheet = writer.sheets["ITEM REPORT"]
+
+                worksheet["A1"] = "CLIENT:"
+                worksheet["B1"] = client_value
+
+                worksheet["A2"] = "RPT NAME:"
+                worksheet["B2"] = rpt_name_value
+
+                worksheet["A3"] = "RPT DATE :"
+                worksheet["B3"] = rpt_date_value
+
+            output.seek(0)
 
             output_filename = sftp_file.name.rsplit(".", 1)[0]
             
@@ -222,7 +234,6 @@ def run():
                 f"{output_filename}_ITEM_REPORT_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-
 
         except Exception as e:
 
