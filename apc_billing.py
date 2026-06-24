@@ -31,6 +31,7 @@ def run():
         "Customs Duty (CAD)",
         "GST (CAD)",
         "Provincial Sales Tax (CAD)",
+        "Surtax (CAD)",
         "HST (CAD)",
         "Payment Terms",
         "Cargo Control Number",
@@ -124,6 +125,7 @@ def run():
                 "Customs Duty (CAD)": "Customs Duty (CAD)",
                 "GST (CAD)": "GST (CAD)",
                 "Provincial Sales Tax (CAD)": "HST (CAD)",
+                "Surtax (CAD)": "Surtax (CAD)",
                 "Payment Terms": "Payment Terms",
                 "Bill of Lading": "Bill of Lading",
                 "Cargo Control Number":"Cargo Control Number",
@@ -240,6 +242,7 @@ def run():
 
             DEFAULT_VALUES = {
                 "Provincial Sales Tax (CAD)":"0",
+                "Surtax (CAD)": "0"
             }
             
             HST_MAP = {
