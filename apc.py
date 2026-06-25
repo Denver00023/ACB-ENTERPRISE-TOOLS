@@ -2,16 +2,36 @@ import streamlit as st
 import pandas as pd
 import io
 from collections import Counter
+import re
 
+
+def clean_description(text):
+
+    if pd.isna(text):
+        return ""
+
+    text = str(text)
+
+    text = text.replace("\n", " ")
+    text = text.replace("\r", " ")
+    text = text.replace("\t", " ")
+
+    text = re.sub(
+        r"[^A-Za-z0-9\s\-\.,/&()]",
+        "",
+        text
+    )
+
+    text = re.sub(r"\s+", " ", text).strip()
+
+    return text
 
 def run():
 
     # PAGE HEADER
-
-    st.subheader("📊 APC SFTP Excel Processor Tool")
+    st.title("📊 APC Excel Processor Tool")
 
     # FIXED TEMPLATE HEADERS
-
     TEMPLATE_COLUMNS = [
         "Inco_term",
         "Mode_of_transport",
@@ -71,7 +91,7 @@ def run():
         "IID_Y/N",
         "Masterbill"
     ]
-
+    
     # VALIDATION / FORMAT ROW
 
     HEADER_RULES = [
@@ -133,9 +153,10 @@ def run():
         "O,1 A",
         "M,1…256 AN"
     ]
-
-
-    # FILE UPLOADS & FILENAME
+    
+    # FILE UPLOADS
+    
+    # FILENAME
     col1, col2 = st.columns(2)
 
     with col1:
@@ -165,9 +186,9 @@ def run():
 
     st.markdown("---")
     st.caption("© 2026 ACB Toolkit | Developed by IT Department")
-
+    
     # PROCESS BUTTON
-
+    
     if st.button("🚀 Process Files"):
 
         if not client_file or not lookup_file:
@@ -179,9 +200,9 @@ def run():
             st.stop()
 
         try:
-
+            
             # READ FILES
-
+            
             client_df = pd.read_excel(
                 client_file,
                 dtype=str
@@ -191,9 +212,9 @@ def run():
                 lookup_file,
                 dtype=str
             ).fillna('')
-
+            
             # BUILD LOOKUP DICTIONARY
-
+            
             lookup_dict = {}
 
             for _, row in lookup_df.iterrows():
@@ -219,9 +240,9 @@ def run():
                     'Pickup_postal_code': row.get('ZIP', ''),
                     'Pickup_country': 'US'
                 }
-
+            
             # DEFAULT VALUES
-
+            
             DEFAULT_FIELDS = {
                 'Inco_term': 'DDP',
                 'Mode_of_transport': 2,
@@ -238,9 +259,9 @@ def run():
                 'Port_of_Discharge': '0496',
                 'IID_Y/N': 'N'
             }
-
+            
             # PROCESS CLIENT DATA
-
+            
             output_rows = []
 
             current_marker = None
@@ -252,17 +273,17 @@ def run():
                 first_col = str(
                     row.iloc[0]
                 ).strip()
-
+                
                 # DETECT MARKER ROWS
-
+                
                 if first_col.startswith(("APC", "REL")):
 
                     current_marker = first_col
 
                     continue
-
+                
                 # SKIP ROWS BEFORE FIRST MARKER
-
+                
                 if not current_marker:
                     continue
 
@@ -271,24 +292,24 @@ def run():
                 data['Marker'] = current_marker
 
                 marker_counter[current_marker] += 1
-
+                
                 # LOOKUP DATA
-
+                
                 lookup_data = lookup_dict.get(
                     current_marker,
                     {}
                 )
-
+                
                 # APPLY LOOKUP VALUES
-
+                
                 for key, value in lookup_data.items():
 
                     if not data.get(key):
 
                         data[key] = value
-
+                
                 # APPLY DEFAULTS
-
+                
                 for key, value in DEFAULT_FIELDS.items():
 
                     if not data.get(key):
@@ -296,10 +317,19 @@ def run():
                         data[key] = value
 
                 output_rows.append(data)
-
+            
             # BUILD FINAL DATAFRAME
-
+            
             final_df = pd.DataFrame(output_rows)
+
+            seller = final_df["Seller_name"].astype(str).str.upper().str.strip()
+
+            match = seller.isin(["THAT'S MY GEEK", "THATS MY GEEK"])
+
+            if match.any():
+                final_df.loc[match, "AutoCalc_Provincial_Rate"] = "C"
+                final_df.loc[match, "Importer_number"] = "709267157RM0001"
+                final_df.loc[match, "Importer_party_id"] = "APCB2B02"
 
             # KEEP ORIGINAL RELIABLE_TRACKING FIRST
             final_df['Client_Internal_tracking'] = final_df['Reliable_tracking']
@@ -308,7 +338,6 @@ def run():
             final_df['Reliable_tracking'] = 'APC' + final_df['Reliable_tracking'].astype(str)
 
             # ADD MISSING COLUMNS
-
             for col in TEMPLATE_COLUMNS:
 
                 if col not in final_df.columns:
@@ -316,8 +345,12 @@ def run():
                     final_df[col] = ''
 
             # FORCE EXACT COLUMN ORDER
-            
             final_df = final_df[TEMPLATE_COLUMNS]
+
+            final_df["Goods_Description"] = (
+            final_df["Goods_Description"]
+            .apply(clean_description)
+            )
 
             # FINAL OUTPUT CALCULATION (OVERWRITE VALUES)
 
@@ -342,55 +375,114 @@ def run():
             lambda x: float(f"{x:.2f}")
             )
 
-            # VALIDATION HEADER ROW
+            validation_errors = []
 
-            rules_df = pd.DataFrame(
-                [HEADER_RULES],
-                columns=TEMPLATE_COLUMNS
+            final_df["HS_code"] = (
+                final_df["HS_code"]
+                .astype(str)
+                .str.replace(r"\.0$", "", regex=True)
+                .str.strip()
+                .apply(lambda x: x.zfill(10) if x.isdigit() and len(x) < 10 else x)
             )
 
-            # COMBINE RULES + DATA
+            for idx, row in final_df.iterrows():
 
-            export_df = pd.concat(
-                [rules_df, final_df],
-                ignore_index=True
-            )
+                tracking = row.get("Reliable_tracking", "")
+
+                def add(field, issue):
+                    validation_errors.append({
+                    "Row": idx + 1,
+                    "Tracking": tracking,
+                    "Field": field,
+                    "Issue": issue
+                    })
+                
+                # Buyer Name
+                if not str(row.get("Buyer_name", "")).strip():
+                    add("Buyer_name", "Blank value")
+                
+                # Buyer Address
+                if not str(row.get("Buyer_address", "")).strip():
+                    add("Buyer_address", "Blank value")
+
+                # Quantity
+                qty = row.get("Quantity", "")
+                try:
+                    if float(qty) <= 0:
+                        add("Quantity", "Must be greater than 0")
+                except:
+                    add("Quantity", "Invalid or blank")
+
+                # Seller State
+                if len(str(row.get("Seller_state", "")).strip()) != 2:
+                    add("Seller_state", "Must be 2 characters")
+
+                # Buyer Province
+                if len(str(row.get("Buyer_province", "")).strip()) != 2:
+                    add("Buyer_province", "Must be 2 characters")
+
+                # HS CODE
+                hs_code = str(row.get("HS_code", "")).strip()
+                if len(hs_code) != 10:
+                    add("HS_code", "Must be exactly 10 characters")
+
+                # Goods Description (RAW CHECK)
+                raw_desc = str(row.get("Goods_Description", ""))
+
+                if re.search(r"[^A-Za-z0-9\s\-\.,/&()]", raw_desc):
+                    add("Goods_Description", "Contains invalid special characters")
+
+            if validation_errors:
+
+                st.error(f"❌ Validation failed. Found {len(validation_errors)} issue(s).")
+
+                error_df = pd.DataFrame(validation_errors)
+
+                summary = (
+                    error_df.groupby(["Field"])
+                    .size()
+                    .reset_index(name="Count")
+                    .sort_values("Count", ascending=False)
+                )
+
+                st.subheader("📄 Full Error Report")
+                st.dataframe(error_df, use_container_width=True, height=400)
+
+                st.stop()
+
+            rules_df = pd.DataFrame([HEADER_RULES], columns=TEMPLATE_COLUMNS)
+            export_df = pd.concat([rules_df, final_df], ignore_index=True)
 
             # EXPORT EXCEL
-
+            
             output = io.BytesIO()
 
             with pd.ExcelWriter(
                 output,
                 engine='openpyxl'
             ) as writer:
-
+                
                 export_df.to_excel(
                     writer,
                     index=False,
                     header=TEMPLATE_COLUMNS,
                     sheet_name='Worksheet'
                 )
-
+            
             # SUCCESS
-
             st.success("✅ Processing Complete!")
-
+            
             # METRICS
             
             metric_col1, metric_col2 = st.columns(2)
-
             with metric_col1:
-
                 st.metric(
-                    "Processed Rows",
+                    "Total Processed Rows",
                     len(final_df)
                 )
-
             with metric_col2:
-
                 st.metric(
-                    "Unique Markers",
+                    "Order Number Unique",
                     final_df.get(
                         "Order_number",
                         pd.Series(dtype=str)
@@ -421,9 +513,7 @@ def run():
                     "officedocument.spreadsheetml.sheet"
                 )
             )
-
         except Exception as e:
-
             st.error(
                 f"❌ Processing Failed: {str(e)}"
             )
