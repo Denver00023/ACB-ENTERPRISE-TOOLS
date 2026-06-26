@@ -294,7 +294,7 @@ def run():
             st.download_button(
                 "📥 Download Excel",
                 data=output.getvalue(),
-                file_name=f"APC_POSTAL_BILLING_DETAIL_REPORT_{mawb_input}_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
+                file_name=f"APC POSTAL - Detail Report - {mawb_input}_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
