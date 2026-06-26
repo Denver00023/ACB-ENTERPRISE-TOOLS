@@ -413,6 +413,9 @@ def run():
                 except:
                     add("Quantity", "Invalid or blank")
 
+                # Buyer Address
+                if not str(row.get("Goods_Description", "")).strip():
+                    add("Goods_Description", "Blank value")
 
                 # Buyer Province
                 if len(str(row.get("Buyer_province", "")).strip()) != 2:
