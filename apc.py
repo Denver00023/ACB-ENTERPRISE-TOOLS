@@ -413,9 +413,6 @@ def run():
                 except:
                     add("Quantity", "Invalid or blank")
 
-                # Seller State
-                if len(str(row.get("Seller_state", "")).strip()) != 2:
-                    add("Seller_state", "Must be 2 characters")
 
                 # Buyer Province
                 if len(str(row.get("Buyer_province", "")).strip()) != 2:
