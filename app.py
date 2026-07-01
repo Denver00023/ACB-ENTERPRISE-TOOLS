@@ -12,6 +12,7 @@ import apc_billing_header_report
 import apc_client_details
 import amazon_aci_json
 import ezclear
+import apc_pallet_id
 
 # --------PAGE CONFIG----------
 
@@ -224,6 +225,8 @@ NAV_GROUPS = {
         "💳 APC BILLING DETAIL": "APC BILLING DETAIL",
         "💳 APC CLIENT DETAILS": "APC CLIENT DETAIL",
         "💳 APC BILLING HEADER": "APC BILLING HEADER REPORT",
+        "📦 APC PALLET ID": "APC PALLET ID"
+
     },
 
     "📦 AMAZON": {
@@ -314,6 +317,7 @@ for group_name, items in NAV_GROUPS.items():
         "AMAZON CANDATA TO JSON": amazon_aci_json.run,
         "AMAZON XML GETS": amazon_xml_gets.run,
         "EZCLEAR": ezclear.run,
+        "APC PALLET ID": apc_pallet_id.run
 
     }
 # -------ROUTING ENGINE--------
