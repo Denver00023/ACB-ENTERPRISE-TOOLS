@@ -243,12 +243,32 @@ def protect_excel_formula(value):
 
 # VALIDATION
 
-def validate_data(df):
+def validate_data(df, client_type):
 
     audit_rows = []
+
+    # COUNTRY OF ORIGIN VALIDATION
+    if client_type in ["REGULAR AMAZON", "AMAZON CALGARY"]:
+
+        restricted_origins = {"US", "RU", "BY", "KP"}
+
+        for index, row in df.iterrows():
+
+            origin = str(row.get("Country_of_origin", "")).strip().upper()
+
+            if origin in restricted_origins:
+
+                audit_rows.append({
+                    "Reliable_tracking": row.get("Reliable_tracking", ""),
+                    "Issue": "Invalid Country_of_origin",
+                    "Value": origin,
+                    "Details": (
+                        f"Country_of_origin '{origin}' is not allowed "
+                        f"for {client_type}."
+                    )
+                })
     
     # IID VALIDATION
-    
     iid_group = (
         df.groupby("Reliable_tracking")["IID_Y/N"]
         .apply(
@@ -604,7 +624,7 @@ def run():
                 
                 # VALIDATION
                 
-                audit_rows = validate_data(df)
+                audit_rows = validate_data(df, client_type)
                 
                 # VALIDATION FAILED
                 
