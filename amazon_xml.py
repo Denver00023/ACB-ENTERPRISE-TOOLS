@@ -294,10 +294,14 @@ def run():
 
                 items = extract_items(root)
 
+                merchant_id = normalize_name(header.get("merchantId", ""))
+                lookup = mapping_dict.get(merchant_id, {})
+                program_scope = lookup.get("program_scope", "")
+
                 for item in items:
-                    all_rows.append(
-                        build_row(header, item, mapping_dict)
-                    )
+                    row = build_row(header, item, mapping_dict)
+                    row["_program_scope"] = program_scope
+                    all_rows.append(row)
 
                 status.write(f"Completed: {uploaded_file.name}")
 
