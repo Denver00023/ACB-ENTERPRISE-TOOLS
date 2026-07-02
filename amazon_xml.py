@@ -262,7 +262,8 @@ def run():
 
             mapping_dict[token_id] = {
                 "importer_number": str(row.get("Importer Number", "")).strip(),
-                "BroderEze Account": str(row.get("BroderEze Account", "")).strip()
+                "BroderEze Account": str(row.get("BroderEze Account", "")).strip(),
+                "program_scope": str(row.get("Program / Scope", "")).strip()
             }
 
     all_rows = []
@@ -330,6 +331,27 @@ def run():
 
     df = pd.DataFrame(all_rows)
 
+    df["_program_scope"] = df["_program_scope"].astype(str).str.upper().str.strip()
+    
+    # FILTERS
+    sior_entries = df["_program_scope"].str.contains("S-IOR", na=False).sum()
+    aior_entries = df["_program_scope"].str.contains("A-IOR", na=False).sum()
+
+    # UNIQUE COUNTS
+    sior_unique = df[df["_program_scope"].str.contains("S-IOR", na=False)]["Reliable_tracking"].nunique()
+    aior_unique = df[df["_program_scope"].str.contains("A-IOR", na=False)]["Reliable_tracking"].nunique()
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric("**SIOR Entries**", f"{sior_entries:,}")
+        st.metric("**AIOR Entries**", f"{aior_entries:,}")
+        
+        
+    with col2:
+        st.metric("**SIOR Unique**", f"{sior_unique:,}")
+        st.metric("**AIOR Unique**", f"{aior_unique:,}")
+
     unique_tracking_count = df["Reliable_tracking"].nunique()
 
     duplicate_tracking_count = (
@@ -362,6 +384,8 @@ def run():
     df['Total_value_of_parcel'] = df.groupby('Reliable_tracking')['Total_value_of_item'].transform('sum').round(2)
 
     st.dataframe(df, use_container_width=True)
+
+    df = df.drop(columns=["_program_scope"])
 
     excel_data = create_excel(df)
 
