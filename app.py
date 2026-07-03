@@ -13,6 +13,7 @@ import apc_client_details
 import amazon_aci_json
 import ezclear
 import apc_pallet_id
+import airshipment
 
 # --------PAGE CONFIG----------
 
@@ -238,6 +239,7 @@ NAV_GROUPS = {
     "📊 Data Processing": {
         "📊 CANDATA UPLOAD FILE": "CANDATA",
         "📦 ACI JSON": "JSON",
+        "✈️ AIR SHIPMENT":"AIRSHIPMENT",
     },
 
     "🛠 Utilities": {
@@ -310,6 +312,8 @@ for group_name, items in NAV_GROUPS.items():
         "CANDATA": candata.run,
         "SPLIT PDF": splitpdf.run,
         "JSON": aci_json.run,
+        "AIRSHIPMENT": airshipment.run,
+
         "APC BILLING DETAIL": apc_billing.run,
         "APC BILLING HEADER REPORT": apc_billing_header_report.run,
         "APC CLIENT DETAIL": apc_client_details.run,
