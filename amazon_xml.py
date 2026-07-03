@@ -280,6 +280,14 @@ def run():
                 # Merchant ID Mapping Validation
                 merchant_id = str(header.get("merchantId", "")).strip()
 
+                reliable_tracking = (
+                    str(header.get("CCN", "")).replace("1BML", "", 1)
+                    if str(header.get("CCN", "")).startswith("1BML")
+                    else header.get("CCN", "")
+                )
+
+                seller_name = header.get("seller", {}).get("name", "")
+
                 if merchant_id:
 
                     normalized_merchant_id = normalize_name(merchant_id)
@@ -287,8 +295,10 @@ def run():
                     if normalized_merchant_id not in mapping_dict:
 
                         missing_mapping_validation.append({
-                            "File Name": uploaded_file.name,
                             "Merchant ID": merchant_id,
+                            "Seller Name": seller_name,
+                            "Reliable Tracking": reliable_tracking,
+                            "File Name": uploaded_file.name,
                             "Issue": "Merchant ID not found in Account Setup Mapping file"
                         })
 
