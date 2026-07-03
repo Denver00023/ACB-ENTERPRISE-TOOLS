@@ -1,6 +1,26 @@
 import streamlit as st
 import pandas as pd
 
+def load_clean_file(file):
+
+        # Row 1 = header, Row 2 = skip validation rules
+        df = pd.read_excel(file, header=0, skiprows=[1])
+
+        # clean column names
+        df.columns = df.columns.str.strip()
+
+        # remove empty tracking
+        if "Reliable_tracking" in df.columns:
+            df = df.dropna(subset=["Reliable_tracking"])
+            df["Reliable_tracking"] = (
+                df["Reliable_tracking"]
+                .astype(str)
+                .str.strip()
+                .str.upper()
+            )
+
+        return df
+
 def run():
 
     st.subheader("✈️ AIR SHIPMENT VALIDATION GETS UPLOAD")
@@ -17,8 +37,8 @@ def run():
     
     if scrub_file and sftp_file:
 
-        scrub_df = pd.read_excel(scrub_file)
-        sftp_df = pd.read_excel(sftp_file)
+        scrub_df = load_clean_file(scrub_file)
+        sftp_df = load_clean_file(sftp_file)
 
         scrub_df.columns = scrub_df.columns.str.strip()
         sftp_df.columns = sftp_df.columns.str.strip()
@@ -90,7 +110,7 @@ def run():
         # ISSUES ONLY
         st.subheader("❌ Issues Only")
 
-        issues = compare[compare["Status"] != "✅ OK"]
+        issues = compare[compare["Status"] != "✅ PERFECT MATCH CLEAR"]
 
         if len(issues) > 0:
             st.dataframe(issues, use_container_width=True)
