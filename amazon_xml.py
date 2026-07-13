@@ -68,7 +68,7 @@ def extract_items(root):
     return items
 
 # BUILD CANADA ROW
-def build_row(header, item, mapping_dict):
+def build_row(header, item, mapping_dict, mawb_number=""):
 
     seller = header.get("seller", {})
     receiver = header.get("receiver", {})
@@ -179,7 +179,7 @@ def build_row(header, item, mapping_dict):
         "IID_Y/N": "Y",
         "PGA Flag": "CFIA",
         "Category": "HVS",
-        "MAWB #": "",
+        "MAWB #": mawb_number,
         "Carrier code": "1BML",
         "Manifest Only": "",
         "Movement Type": "",
@@ -203,24 +203,53 @@ def create_excel(df):
     output.seek(0)
     return output
 
+def extract_bol_mapping(root):
+    """
+    Returns:
+        {
+            loadNumber: billOfLadingNumber
+        }
+    """
+
+    header = root.find("manifestHeader")
+
+    if header is None:
+        return {}
+
+    load_number = header.findtext("loadNumber", "").strip()
+    bill_number = header.findtext("billOfLadingNumber", "").strip()
+
+    if not load_number:
+        return {}
+
+    return {
+        load_number: bill_number
+    }
 # STREAMLIT APP
 def run():
 
     st.subheader("📄 XML → CANDATA UPLOAD FILE")
     st.caption("Amazon XML to CANDATA UPLOAD FILE")
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         uploaded_files = st.file_uploader(
-            "Upload XML Files",
+            "**Upload CI XML Files**",
             type=["xml"],
             accept_multiple_files=True
         )
 
     with col2:
+        bol_files = st.file_uploader(
+            "**Upload BOL XML Files**",
+            type=["xml"],
+            accept_multiple_files=True
+        )
+
+    with col3:
         mapping_file = st.file_uploader(
-            "Upload Account Setup Tracker",
+            "**Upload Account Setup Tracker**",
             type=["xlsx", "xls"]
         )
     
@@ -250,6 +279,24 @@ def run():
     if not uploaded_files:
         return
     
+    #BOL Mapping
+    bol_mapping = {}
+
+    if bol_files:
+
+        for bol_file in bol_files:
+
+            try:
+                tree = ET.parse(bol_file)
+                root = tree.getroot()
+
+                bol_mapping.update(
+                    extract_bol_mapping(root)
+                )
+
+            except Exception as e:
+                st.error(f"BOL XML Error: {bol_file.name} - {e}")    
+    
     # LOAD MAPPING
     mapping_dict = {}
 
@@ -268,6 +315,7 @@ def run():
 
     all_rows = []
     missing_mapping_validation = []
+    missing_bol = []
 
     with st.status("Processing files...", expanded=False) as status:
         for uploaded_file in uploaded_files:
@@ -276,6 +324,17 @@ def run():
                 root = tree.getroot()
 
                 header = extract_header(root)
+
+                #BOL Mapping Validation
+                tracking_id = header.get("trackingID", "").strip()
+
+                mawb_number = bol_mapping.get(tracking_id, "")
+
+                if not mawb_number:
+                    missing_bol.append({
+                        "Tracking ID": tracking_id,
+                        "File": uploaded_file.name
+                    })
 
                 # Merchant ID Mapping Validation
                 merchant_id = str(header.get("merchantId", "")).strip()
@@ -321,13 +380,21 @@ def run():
 
     status.write(f"✅ **Total Loaded {len(mapping_dict)} Account Setup Tracker Mapping.**")
 
-    status.update(label="Processing complete", state="complete")
+    status.update(label="**Processing complete**", state="complete")
 
+    if missing_bol:
+
+        st.warning("**Some CI XML files did not find a matching BOL XML**.")
+
+        st.dataframe(
+            pd.DataFrame(missing_bol).drop_duplicates(),
+            use_container_width=True
+        )
 
     if missing_mapping_validation:
 
         st.warning(
-            "Validation issues found. These records will still be included in the final output."
+            "**Validation issues found. These records will still be included in the final output.**"
         )
 
         validation_df = (
@@ -335,7 +402,7 @@ def run():
             .drop_duplicates()
         )
 
-        st.subheader("Merchant ID Mapping Validation")
+        st.subheader("📄 **Merchant ID Mapping Validation**")
 
         st.dataframe(
             validation_df,
@@ -344,6 +411,7 @@ def run():
 
 
     df = pd.DataFrame(all_rows)
+    st.subheader("📊 **Summary Metrics**")
 
     df["_program_scope"] = df["_program_scope"].astype(str).str.upper().str.strip()
     
@@ -404,7 +472,7 @@ def run():
     excel_data = create_excel(df)
 
     st.download_button(
-        label="⬇ Download Canada Upload File",
+        label="⬇ **Download Canada Upload File**",
         data=excel_data,
         file_name=f"AMAZON_B2B_CANDATA_UPLOAD_{pd.Timestamp.now().strftime('%Y%m%d%H%M%S')}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
