@@ -368,7 +368,7 @@ def run():
                 program_scope = lookup.get("program_scope", "")
 
                 for item in items:
-                    row = build_row(header, item, mapping_dict)
+                    row = build_row(header, item, mapping_dict, mawb_number)
                     row["_program_scope"] = program_scope
                     all_rows.append(row)
 
