@@ -14,6 +14,7 @@ import amazon_aci_json
 import ezclear
 import apc_pallet_id
 import airshipment
+import prohibited
 
 # --------PAGE CONFIG----------
 
@@ -240,6 +241,7 @@ NAV_GROUPS = {
         "📊 CANDATA UPLOAD FILE": "CANDATA",
         "📦 ACI JSON": "JSON",
         "✈️ AIR SHIPMENT":"AIRSHIPMENT",
+        "📑 PROHIBITED ITEM DETECTION": "PROHIBITED",
     },
 
     "🛠 Utilities": {
@@ -313,6 +315,7 @@ for group_name, items in NAV_GROUPS.items():
         "SPLIT PDF": splitpdf.run,
         "JSON": aci_json.run,
         "AIRSHIPMENT": airshipment.run,
+        "PROHIBITED": prohibited.run,
 
         "APC BILLING DETAIL": apc_billing.run,
         "APC BILLING HEADER REPORT": apc_billing_header_report.run,
