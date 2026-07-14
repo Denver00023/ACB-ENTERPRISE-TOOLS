@@ -184,7 +184,8 @@ def build_row(header, item, mapping_dict, mawb_number=""):
         "Manifest Only": "",
         "Movement Type": "",
         "TARIFF_TREATMENT_CODE": "2",
-        "External Reference 2": header.get("PONumber", "")
+        "External Reference 2": header.get("PONumber", ""),
+        "GST CODE": ""
     }
 
 # CREATE EXCEL
