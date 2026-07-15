@@ -34,7 +34,7 @@ def detect(df):
             keyword
             for keyword in KEYWORDS
             if re.search(
-                r"\b"+re.escape(keyword)+r"\b",
+                re.escape(keyword),
                 text
             )
         ]
