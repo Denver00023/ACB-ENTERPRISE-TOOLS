@@ -185,7 +185,24 @@ CLIENT_CONFIG = {
         },
 
         "importer_rules": {}
-    }
+    },
+    
+    "YANWEN": {
+
+        "extra_headers": [],
+
+        "mapping": {
+            "Product_code": "Product_part",
+            "PGA Flag": "PGAResult"
+        },
+
+        "defaults": {
+            "Importer_party_id": "YANREL01",
+            "Carrier code": "8308"
+        },
+
+        "importer_rules": {}
+    },
 }
 
 # REQUIRED COLUMNS
