@@ -327,9 +327,9 @@ def run():
             match = seller.isin(["THAT'S MY GEEK", "THATS MY GEEK"])
 
             if match.any():
-                final_df.loc[match, "AutoCalc_Provincial_Rate"] = "C"
-                final_df.loc[match, "Importer_number"] = "709267157RM0001"
-                final_df.loc[match, "Importer_party_id"] = "APCB2B02"
+                final_df.loc[match, "AutoCalc_Provincial_Rate"] = "P"
+                final_df.loc[match, "Importer_number"] = "789682689RM0002"
+                final_df.loc[match, "Importer_party_id"] = "APCGREL01"
 
             # KEEP ORIGINAL RELIABLE_TRACKING FIRST
             final_df['Client_Internal_tracking'] = final_df['Reliable_tracking']
