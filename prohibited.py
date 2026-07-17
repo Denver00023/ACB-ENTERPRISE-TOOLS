@@ -12,6 +12,21 @@ KEYWORDS=[
     "UNITED CHEMICALS YELLOWTREAT MUSTARD ALGAECIDE", "BEEF CHEWY"
 ]
 
+PROHIBITED_ADDRESSES=[
+    "1469 WESTCOTT ROAD",
+    "WINDSOR, ON",
+    "N8Y 4C3"
+]
+
+PROHIBITED_CONSIGNEES=[
+    "GUILLAUME GAGN",
+    "2545 RUE BEAUDRY APP 30",
+    "SHERBROOKE, QC",
+    "J1J1K9",
+    "CANADA",
+    "14185647924"
+]
+
 # Columns
 TRACKING_COLUMN="Reliable_tracking"
 DESCRIPTION_COLUMN="Goods_Description"
@@ -30,14 +45,48 @@ def detect(df):
             if pd.notna(value)
         ).upper()
 
-        found=[
+        # Product keywords
+        product_found=[
             keyword
             for keyword in KEYWORDS
             if re.search(
-                re.escape(keyword),
+                r"\b"+re.escape(keyword)+r"\b",
                 text
             )
         ]
+
+        # Address keywords
+        address_found=[
+            address
+            for address in PROHIBITED_ADDRESSES
+            if re.search(
+                r"\b"+re.escape(address)+r"\b",
+                text
+            )
+        ]
+
+        # Consignee keywords
+        consignee_found=[
+            consignee
+            for consignee in PROHIBITED_CONSIGNEES
+            if re.search(
+                r"\b"+re.escape(consignee)+r"\b",
+                text
+            )
+        ]
+
+        found=product_found+address_found+consignee_found
+
+        issue=[]
+
+        if product_found:
+            issue.append("PROHIBITED ITEM - PRODUCT")
+
+        if address_found:
+            issue.append("PROHIBITED ADDRESS")
+
+        if consignee_found:
+            issue.append("PROHIBITED CONSIGNEE")
 
         if found:
 
@@ -49,9 +98,9 @@ def detect(df):
 
                 "Parcel_item_weight": row.get(WEIGHT_COLUMN, ""),
 
-                "Detected_Prohibited_Item": ", ".join(found),
+                "Detected_Prohibited": ", ".join(found),
 
-                "Issue":"PROHIBITED ITEM FOUND"
+                "Issue":" | ".join(issue)
             })
 
     return pd.DataFrame(results)
