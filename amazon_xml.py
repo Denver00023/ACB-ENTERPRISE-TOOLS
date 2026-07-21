@@ -157,7 +157,7 @@ def build_row(header, item, mapping_dict, mawb_number=""):
         
         # ---------------- CUSTOMS ----------------
         "HS_code": item.get("hs_code", ""),
-        "Goods_Description": item.get("description", ""),
+        "Goods_Description": item.get("description", "") + " | " + item.get("itemID", ""),
         "Country_of_origin": (
             "U" + str(seller.get("stateProvince", "")).strip()[:2].upper()
             if item.get("country", "").upper() == "US"
