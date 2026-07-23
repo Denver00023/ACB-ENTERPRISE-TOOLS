@@ -91,7 +91,8 @@ CLIENT_CONFIG = {
         "defaults": {
             "Importer_party_id": "AMZREL01",
             "Port_of_Discharge_Sublocation Code": "9813",
-            "Carrier code": "8308"
+            "Carrier code": "8308",
+            "Importer_number": "789682689RM0005",
         },
 
         "importer_rules": {}
@@ -112,7 +113,8 @@ CLIENT_CONFIG = {
         "defaults": {
             "Importer_party_id": "AMZREL01",
             "Port_of_Discharge_Sublocation Code": "9818",
-            "Carrier code": "8308"
+            "Carrier code": "8308",
+            "Importer_number": "789682689RM0005",
         },
 
         "importer_rules": {}
