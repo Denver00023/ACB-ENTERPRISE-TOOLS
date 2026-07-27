@@ -5,8 +5,6 @@ import io
 
 def run():
 
-    
-
     st.subheader("📦 APC BILLING HEADER REPORT")
     st.caption("CANDATA REPORT + SFTP = HEADER REPORT TEMPLATE")
 
@@ -22,6 +20,7 @@ def run():
         "Total Value For Duty (CAD)",
         "Total Customs Duties (CAD)",
         "Total GST (CAD)",
+        "Surtax (CAD)",
         "HST (CAD)",
         "Payment Terms",
         "Bill of Lading"
@@ -84,6 +83,7 @@ def run():
                 "Brokerage Fee": "Brokerage Fee",
                 "Total Value For Duty (CAD)": "Total Value For Duty (CAD)",
                 "Total Customs Duties (CAD)": "Total Customs Duties (CAD)",
+                "Surtax (CAD)": "Surtax (CAD)",
                 "Total GST (CAD)": "Total GST (CAD)",
                 "HST (CAD)": "HST (CAD)",
                 "Payment Terms": "Payment Terms",
