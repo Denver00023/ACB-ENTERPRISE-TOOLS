@@ -134,14 +134,15 @@ CLIENT_CONFIG = {
         "defaults": {
             "Importer_party_id": "",
             "Port_of_Discharge_Sublocation Code": "",
-            "Carrier code": "8308"
+            "Carrier code": "8308",
+            "Currency_code": "USD"
+
         },
 
         "importer_rules": {
             "789682689RM0002": "APCGREL01",
             "101750818RM0017": "FBGYYZ01",
             "874616311RM0001": "APCB2B01",
-            "709267157RM0001": "APCB2B02"
         }
     },
 
