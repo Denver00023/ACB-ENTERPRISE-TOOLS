@@ -15,6 +15,7 @@ import ezclear
 import apc_pallet_id
 import airshipment
 import prohibited
+import apc_candata
 
 # --------PAGE CONFIG----------
 
@@ -227,7 +228,8 @@ NAV_GROUPS = {
         "💳 APC BILLING DETAIL": "APC BILLING DETAIL",
         "💳 APC CLIENT DETAILS": "APC CLIENT DETAIL",
         "💳 APC BILLING HEADER": "APC BILLING HEADER REPORT",
-        "📦 APC PALLET ID": "APC PALLET ID"
+        "📦 APC PALLET ID": "APC PALLET ID",
+        "📊 APC CANDATA UPLOAD FILE": "APC CANDATA UPLOAD FILE"
 
     },
 
@@ -273,58 +275,27 @@ for group_name, items in NAV_GROUPS.items():
                 st.session_state.active_group = group_name
                 st.rerun()
 
-#if st.sidebar.button("🚚 APC SFTP"):
-    #st.session_state.module = "APC"
-
-#if st.sidebar.button("🗃️ CANDATA UPLOAD FILE"):
-    #st.session_state.module = "CANDATA"
-
-#if st.sidebar.button("🛒 AMAZON B2B XML TO CANDATA UPLOAD FILE"):
-    #st.session_state.module = "AMAZON_XML"
-
-#if st.sidebar.button("📦 AMAZON CANDATA TO JSON"):
-    #st.session_state.module = "AMAZON_ACI_JSON"
-
-#if st.sidebar.button("🛒 AMAZON B2B XML TO GETS UPLOAD FILE"):
-    #st.session_state.module = "AMAZON_XML_GETS"
-
-#if st.sidebar.button("💳 APC BILLING DETAIL REPORT"):
-    #st.session_state.module = "APC_BILLING"
-
-#if st.sidebar.button("💳 APC BILLING HEADER REPORT"):
-    #st.session_state.module = "APC_BILLING_HEADER_REPORT"
-
-#if st.sidebar.button("💳 APC CLIENT DETAILS"):
-    #st.session_state.module = "APC_CLIENT_DETAILS"
-
-#if st.sidebar.button("📦🔄 ACI JSON SHIPMENT CONVERTER"):
-    #st.session_state.module = "JSON"
-
-#if st.sidebar.button("💱 USD ↔️ CAD FX RATES"):
-    #st.session_state.module = "BANKOFCANADA"
-
-#if st.sidebar.button("📄 SPLIT PDF BATCHER"):
-    #st.session_state.module = "SPLITPDF"
-
     # MODULES .RUN FROM IMPORT
     MODULES = {
 
         "APC SFTP": apc.run,
+        "APC BILLING DETAIL": apc_billing.run,
+        "APC BILLING HEADER REPORT": apc_billing_header_report.run,
+        "APC CLIENT DETAIL": apc_client_details.run,
+        "APC PALLET ID": apc_pallet_id.run,
+        "APC CANDATA UPLOAD FILE": apc_candata.run,
+
+        "AMAZON XML": amazon_xml.run,
+        "AMAZON CANDATA TO JSON": amazon_aci_json.run,
+        "AMAZON XML GETS": amazon_xml_gets.run,
+
+        "EZCLEAR": ezclear.run,
         "BANK OF CANADA": bankofcanada.run,
         "CANDATA": candata.run,
         "SPLIT PDF": splitpdf.run,
         "JSON": aci_json.run,
         "AIRSHIPMENT": airshipment.run,
         "PROHIBITED": prohibited.run,
-
-        "APC BILLING DETAIL": apc_billing.run,
-        "APC BILLING HEADER REPORT": apc_billing_header_report.run,
-        "APC CLIENT DETAIL": apc_client_details.run,
-        "AMAZON XML": amazon_xml.run,
-        "AMAZON CANDATA TO JSON": amazon_aci_json.run,
-        "AMAZON XML GETS": amazon_xml_gets.run,
-        "EZCLEAR": ezclear.run,
-        "APC PALLET ID": apc_pallet_id.run
 
     }
 # -------ROUTING ENGINE--------
@@ -347,36 +318,3 @@ else:
         MODULES[st.session_state.module]()
     except Exception as e:
         st.error(f"Module Error: {e}")
-
-#elif st.session_state.module == "APC":
-    #apc.run()
-
-#elif st.session_state.module == "BANKOFCANADA":
-    #bankofcanada.run()
-
-#elif st.session_state.module == "SPLITPDF":
-    #splitpdf.run()
-
-#elif st.session_state.module == "CANDATA":
-    #candata.run()
-
-#elif st.session_state.module == "APC_BILLING":
-    #output = apc_billing.run()
-
-#elif st.session_state.module == "APC_BILLING_HEADER_REPORT":
-    #output = apc_billing_header_report.run()
-
-#elif st.session_state.module == "APC_CLIENT_DETAILS":
-    #output = apc_client_details.run()
-
-#elif st.session_state.module == "AMAZON_XML":
-    #amazon_xml.run()
-
-#elif st.session_state.module == "AMAZON_ACI_JSON":
-    #amazon_aci_json.run()
-
-#elif st.session_state.module == "JSON":
-    #aci_json.run()
-
-#elif st.session_state.module == "AMAZON_XML_GETS":
-    #amazon_xml_gets.run()
