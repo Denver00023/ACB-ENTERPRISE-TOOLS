@@ -118,34 +118,6 @@ CLIENT_CONFIG = {
         "importer_rules": {}
     },
 
-    "APC": {
-
-        "extra_headers": [
-            "TARIFF_TREATMENT_CODE",
-            "External Reference 2",
-            "GST CODE"
-        ],
-
-        "mapping": {
-            "Product_code": "Product_part",
-            "PGA Flag": "PGAResult"
-        },
-
-        "defaults": {
-            "Importer_party_id": "",
-            "Port_of_Discharge_Sublocation Code": "",
-            "Carrier code": "8308",
-            "Currency_code": "USD"
-
-        },
-
-        "importer_rules": {
-            "789682689RM0002": "APCGREL01",
-            "101750818RM0017": "FBGYYZ01",
-            "874616311RM0001": "APCB2B01",
-        }
-    },
-
     "DHL": {
 
         "extra_headers": [
