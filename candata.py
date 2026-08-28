@@ -176,6 +176,25 @@ CLIENT_CONFIG = {
 
         "importer_rules": {}
     },
+
+    "ECMS": {
+    
+            "extra_headers": [],
+    
+            "mapping": {
+                "Product_code": "Product_part",
+                "PGA Flag": "PGAResult"
+            },
+    
+            "defaults": {
+                "Importer_party_id": "APXREL01",
+                "Carrier code": "8308"
+            },
+    
+            "importer_rules": {
+                "789682689RM0002": "APXREL01"
+            }
+        },
 }
 
 # REQUIRED COLUMNS
