@@ -20,6 +20,7 @@ from modules import (
     apc_client_details,
     apc_pallet_id,
     apc_candata,
+    apc_billing_validation,
 
     #DATA PROCESSING MODULES
     candata,
@@ -69,7 +70,8 @@ NAV_GROUPS = {
         "💳 APC CLIENT DETAILS": "APC CLIENT DETAIL",
         "💳 APC BILLING HEADER": "APC BILLING HEADER REPORT",
         "📦 APC PALLET ID": "APC PALLET ID",
-        "📊 APC CANDATA UPLOAD FILE": "APC CANDATA UPLOAD FILE"
+        "📊 APC CANDATA UPLOAD FILE": "APC CANDATA UPLOAD FILE",
+        "💳 APC BILLING VALIDATION": "APC BILLING VALIDATION"
 
     },
 
@@ -132,6 +134,7 @@ for group_name, items in NAV_GROUPS.items():
         "APC CLIENT DETAIL": apc_client_details.run,
         "APC PALLET ID": apc_pallet_id.run,
         "APC CANDATA UPLOAD FILE": apc_candata.run,
+        "APC BILLING VALIDATION": apc_billing_validation.run,
 
         #AMAZON MODULES
         "AMAZON XML": amazon_xml.run,
