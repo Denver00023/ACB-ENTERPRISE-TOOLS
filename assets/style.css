@@ -1130,7 +1130,7 @@ div[data-testid="stAlert"] {
 }
 
 div[data-testid="stRadio"] label {
-    /*color: #0E3A5E !important; */
+    color: #1C9FD8 !important; 
     font-weight: 700 !important;
 }
 
