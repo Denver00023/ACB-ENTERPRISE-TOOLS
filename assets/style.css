@@ -1131,8 +1131,11 @@ div[data-testid="stAlert"] {
 
 div[data-testid="stRadio"] label {
     /*color: #0E3A5E !important; */
-    color: #EF4F25 !important;
-    font-weight: 800 !important;
+    font-weight: 700 !important;
+}
+
+div[data-testid="stRadio"] label * {
+    font-weight: 700 !important;
 }
 
 div[data-testid="stRadio"] label:hover {
