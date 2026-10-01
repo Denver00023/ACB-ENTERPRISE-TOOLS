@@ -1130,12 +1130,13 @@ div[data-testid="stAlert"] {
 }
 
 div[data-testid="stRadio"] label {
-    color: #0E3A5E !important;
+    /*color: #0E3A5E !important; */
+    color: #EF4F25 !important;
     font-weight: 600 !important;
 }
 
 div[data-testid="stRadio"] label:hover {
-    color: #EF4F25 !important;
+    color: #0E3A5E !important;
 }
 
 div[data-testid="stRadio"] input {
