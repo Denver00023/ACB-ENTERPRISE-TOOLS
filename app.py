@@ -10,6 +10,7 @@ from modules import (
 
     #AMAZON MODULES
     amazon_xml,
+    amazon_xml_2,
     amazon_aci_json,
     amazon_xml_gets,
 
@@ -76,7 +77,8 @@ NAV_GROUPS = {
     },
 
     "📦 AMAZON": {
-        "📊 AMAZON XML TO CANDATA": "AMAZON XML",
+        #"📊 AMAZON XML TO CANDATA": "AMAZON XML", #Old Version
+        "📊 AMAZON XML TO CANDATA": "AMAZON XML 2", #New Version
         "📦 AMAZON CANDATA TO JSON": "AMAZON CANDATA TO JSON",
         "📊 AMAZON XML GETS": "AMAZON XML GETS",
     },
@@ -138,6 +140,7 @@ for group_name, items in NAV_GROUPS.items():
 
         #AMAZON MODULES
         "AMAZON XML": amazon_xml.run,
+        "AMAZON XML 2": amazon_xml_2.run,
         "AMAZON CANDATA TO JSON": amazon_aci_json.run,
         "AMAZON XML GETS": amazon_xml_gets.run,
 
