@@ -33,6 +33,7 @@ def run():
         "Provincial Sales Tax (CAD)",
         "Surtax (CAD)",
         "HST (CAD)",
+        "SIMA (CAD)",
         "Payment Terms",
         "Cargo Control Number",
         "Order Number",
@@ -126,6 +127,7 @@ def run():
                 "GST (CAD)": "GST (CAD)",
                 "Provincial Sales Tax (CAD)": "HST (CAD)",
                 "Surtax (CAD)": "Surtax (CAD)",
+                "SIMA (CAD)": "SIMA (CAD)", # Assuming the CANDATA file has a column named "SIMA (CAD)" for the value.
                 "Payment Terms": "Payment Terms",
                 "Bill of Lading": "Bill of Lading",
                 "Cargo Control Number":"Cargo Control Number",
