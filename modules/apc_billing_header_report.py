@@ -20,7 +20,7 @@ def run():
         "Total Value For Duty (CAD)",
         "Total Customs Duties (CAD)",
         "Total GST (CAD)",
-        "Surtax (CAD)",
+        "Total Surtax (CAD)",
         "HST (CAD)",
         "Payment Terms",
         "Bill of Lading"
@@ -83,7 +83,7 @@ def run():
                 "Brokerage Fee": "Brokerage Fee",
                 "Total Value For Duty (CAD)": "Total Value For Duty (CAD)",
                 "Total Customs Duties (CAD)": "Total Customs Duties (CAD)",
-                "Surtax (CAD)": "Surtax (CAD)",
+                "Total Surtax (CAD)": "Total Surtax (CAD)",
                 "Total GST (CAD)": "Total GST (CAD)",
                 "HST (CAD)": "HST (CAD)",
                 "Payment Terms": "Payment Terms",
