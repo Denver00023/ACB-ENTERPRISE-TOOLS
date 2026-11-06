@@ -95,6 +95,21 @@ IMPORTER_RULES = {
     }
 }
 
+#HSCODE RESTRICTED LIST
+RESTRICTED_HS_CODES = {
+    "1004900000",
+    "1904905000",
+    "2936210000",
+    "2936900000",
+    "2936270000",
+    "0813400090",
+    "2936240000",
+    "8505110090",
+    "7113111000",
+    "1521100000",
+    "3502200000"
+}
+
 # CLIENT CONFIG
 CLIENT_CONFIG = {
 
@@ -238,6 +253,17 @@ def protect_excel_formula(value):
 def validate_data(df, client_type):
 
     audit_rows = []
+
+    # HS_CODE VALIDATION
+    for index, row in df.iterrows():
+        hs_code = str(row.get("HS_code", "")).strip()
+        if hs_code in RESTRICTED_HS_CODES:
+            audit_rows.append({
+                "Reliable_tracking": row.get("Reliable_tracking", ""),
+                "Issue": "Restricted HS_code",
+                "Value": hs_code,
+                "Details": f"HS_code '{hs_code}' is restricted and cannot be processed."
+            })
 
     # COUNTRY OF ORIGIN VALIDATION
     if client_type in ["PGA", "B2B", "LVS"]:
